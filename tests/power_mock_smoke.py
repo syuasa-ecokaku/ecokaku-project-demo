@@ -94,8 +94,9 @@ def run():
             page.wait_for_timeout(150)
             page.screenshot(path=str(OUTPUT/name))
         f.locator('[data-page=power]').click()
+        f.locator('[data-power-business=battery]').click()
         expect(f.locator('#power-tab-summary')).to_have_attribute('aria-selected', 'true')
-        assert f.locator('.pw-primary-tabs [role=tab]').all_text_contents() == ['サマリー','一括入力','案件詳細']
+        assert f.locator('.pw-primary-tabs [role=tab]').all_text_contents() == ['サマリー','一括入力','詳細管理']
         assert '2026-11-04' in f.locator('.pw-demo-note').inner_text()
         done('initial summary, exactly three primary tabs, explicit demo date')
         for status in ['', 'answer', 'payment', 'proof', 'overdue']:
@@ -386,6 +387,7 @@ def run():
         f.locator('#settings-user-save').click()
         assert 'three@example.com' in f.locator('#settings-demo-detail').inner_text()
         f.locator('[data-page=power]').click()
+        f.locator('[data-power-business=battery]').click()
         detail(0,'basic')
         value('17','PCS-追加サンプル')
         save_case()
@@ -394,6 +396,7 @@ def run():
         page.reload(wait_until='networkidle')
         inner=page.frames[1]
         f.locator('[data-page=power]').click()
+        f.locator('[data-power-business=battery]').click()
         assert '一括下書き案件A' not in f.locator('.pw-summary-table').inner_text()
         expect(f.locator('#power-tab-summary')).to_have_attribute('aria-selected','true')
         screenshot('power-summary.png')
