@@ -139,7 +139,7 @@ def run():
         f.locator('[data-page=home]').click()
         assert f.locator('#sales-demo-home').inner_text()==home_before
         f.locator('[data-page=sales]').click();f.locator('[data-sales-business=solar]').click();assert f.locator('#sales-demo-cases tr').count()==3
-        f.locator('[data-page=legal]').click();assert f.locator('#legal-demo-cases tr').count()==3
+        f.locator('[data-page=legal]').click();f.locator('#legal-workspace [data-dept-business=solar]').click();assert f.locator('#legal-demo-cases tr').count()==3
         f.locator('[data-page=power]').click();bulk()
         page.set_viewport_size({'width':390,'height':900})
         table=f.locator('#power-bulk-scroll');table.scroll_into_view_if_needed();table.evaluate('(e)=>e.scrollLeft=650')
