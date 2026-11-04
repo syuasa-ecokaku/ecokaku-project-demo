@@ -132,7 +132,7 @@ def run():
         tab('bulk')
         expect(cell('P-00001','31')).to_have_value('000-MENU-DRAFT')
         f.locator('[data-power-action=cancelAll]').click()
-        expect(cell('P-00001','31')).to_have_value('TEST-R-1')
+        expect(cell('P-00001','31')).to_have_value('DEMO-RECEIPT-P-00001')
         f.locator('[data-power-action=clearFilters]').click()
         done('search/filter state retained; menu re-entry resets only business/tab to battery/summary and preserves pending drafts')
         tab('detail');f.locator('#power-detail-case').select_option('0');section('records')

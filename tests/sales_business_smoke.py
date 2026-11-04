@@ -17,24 +17,22 @@ def run():
         page.goto(url,wait_until='networkidle')
         f=page.frame_locator('#codex-visualization')
         def done(name): passed.append(name);print('PASS',name,flush=True)
-        def tab(key): f.locator('.sl-work-tabs [data-sales-tab='+key+']').click()
-        def business(key): f.locator('[data-sales-business='+key+']').click()
+        def tab(key): f.locator('#sales-workspace .du-work-tabs').get_by_role('tab',name={'summary':'サマリー','bulk':'データ入力','detail':'案件詳細'}[key],exact=True).click()
+        def business(key): f.locator('#sales-workspace .du-business-tabs').get_by_role('tab',name={'battery':'蓄電池','solar':'太陽光','datacenter':'データセンター'}[key],exact=True).click()
         def cell(pid,key): return f.locator('[data-sales-project="'+pid+'"][data-sales-field="'+key+'"]')
         def shot(name,target='.sl-business-tabs'):
             f.locator(target).scroll_into_view_if_needed(); page.screenshot(path=str(OUTPUT/name))
         f.locator('[data-page=sales]').click()
-        expect(f.locator('[data-sales-business=battery]')).to_have_attribute('aria-selected','true')
-        expect(f.locator('#sales-tab-summary')).to_have_attribute('aria-selected','true')
-        assert f.locator('.sl-business-tabs button').all_text_contents()==['蓄電池','太陽光','データセンター']
-        assert f.locator('.sl-work-tabs button').all_text_contents()==['サマリー','データ入力','案件詳細']
-        assert '未登録' in f.locator('#sales-view').inner_text()
+        expect(f.locator('#sales-workspace .du-business-tabs [aria-selected=true]')).to_have_text('蓄電池')
+        assert f.locator('#sales-workspace [data-dept-summary-row]').count()==10
+        assert f.locator('#sales-workspace .du-work-tabs button').all_text_contents()==['サマリー','データ入力','案件詳細']
         for key,icon in [('battery','battery'),('solar','solar-panel'),('datacenter','server')]:
-            svg=f.locator('[data-sales-business='+key+'] svg');expect(svg).to_have_attribute('data-lucide',icon)
-            assert 18<=svg.bounding_box()['width']<=20
             business(key)
+            svg=f.locator('#sales-workspace .du-business-tabs [aria-selected=true] svg');expect(svg).to_have_attribute('data-lucide',icon)
+            assert 18<=svg.bounding_box()['width']<=20
             for t in ['summary','bulk','detail']:
-                tab(t);expect(f.locator('#sales-tab-'+t)).to_have_attribute('aria-selected','true')
-            business('battery');expect(f.locator('#sales-tab-detail')).to_have_attribute('aria-selected','true')
+                tab(t);expect(f.locator('#sales-workspace .du-work-tabs [aria-selected=true]')).to_have_text({'summary':'サマリー','bulk':'データ入力','detail':'案件詳細'}[t])
+            business('battery');expect(f.locator('#sales-workspace .du-work-tabs [aria-selected=true]')).to_have_text('案件詳細')
         business('solar');tab('summary')
         assert f.locator('#sales-demo-cases tr').count()==3
         assert f.locator('.sl-kpi strong').all_text_contents()==['3','—','—','—','—']

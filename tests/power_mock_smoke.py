@@ -106,7 +106,7 @@ def run():
             assert f.locator('[data-power-summary-row]').count() == count
             expect(f.locator('#power-list-count')).to_have_text(f'{count}件')
         f.locator('[data-power-card=""]').click()
-        assert f.locator('[data-power-summary-row]').first.get_attribute('data-power-summary-row') == 'G-00007'
+        assert f.locator('[data-power-summary-row]').first.get_attribute('data-power-summary-row') == 'P-00001'
         done('all count cards match filtered list and progress ordering')
         f.locator('[data-power-filter=owner]').select_option('申請担当A')
         f.locator('[data-power-filter=kind]').select_option('蓄電池')
@@ -123,11 +123,12 @@ def run():
         expect(f.locator('[data-power-filter=sort]')).to_have_value('deadline')
         assert f.locator('[data-power-summary-row]').count() == 1
         clear_filters()
-        f.locator('[data-power-summary-row="P-00001"] [data-power-focus=connectionProof]').click()
-        expect(f.locator('#power-detail-case')).to_have_value('0')
+        f.locator('[data-power-summary-row="G-00005"] [data-power-focus=connectionProof]').click()
+        expect(f.locator('#power-detail-case')).to_have_value('4')
         expect(f.locator('#power-section-connection')).to_have_attribute('open', '')
         assert f.locator('#power-section-connection [data-power-field=connectionProof]').evaluate('(e)=>e===document.activeElement')
         section('basic')
+        case(0);section('connection');section('basic')
         assert f.locator('.pw-section[open]').count() >= 2
         case(1)
         section('receipt')
@@ -217,26 +218,26 @@ def run():
         tab('summary')
         baseline_answer=int(f.locator('[data-power-card=answer]').get_attribute('data-count'))
         baseline_payment=int(f.locator('[data-power-card=payment]').get_attribute('data-count'))
-        detail(2,'connection')
+        detail(3,'connection')
         f.locator('[data-power-na="29"]').check()
         save_case()
         tab('summary')
         assert int(f.locator('[data-power-card=answer]').get_attribute('data-count'))==baseline_answer-1
         bulk('connection')
-        assert cell('G-00003','29').is_disabled()
-        expect(cell('G-00003','29')).to_have_value('対象外')
-        detail(2,'connection')
+        assert cell('G-00004','29').is_disabled()
+        expect(cell('G-00004','29')).to_have_value('対象外')
+        detail(3,'connection')
         f.locator('[data-power-na="29"]').uncheck()
         save_case()
         tab('summary')
         assert int(f.locator('[data-power-card=answer]').get_attribute('data-count'))==baseline_answer
-        detail(2,'connection')
+        detail(3,'connection')
         f.locator('[data-power-scope=connection]').check()
         save_case()
         tab('summary')
         assert int(f.locator('[data-power-card=answer]').get_attribute('data-count'))==baseline_answer-1
         assert int(f.locator('[data-power-card=payment]').get_attribute('data-count'))==baseline_payment-1
-        detail(2,'connection')
+        detail(3,'connection')
         f.locator('[data-power-scope=connection]').uncheck()
         save_case()
         detail(0,'basic')
@@ -288,7 +289,7 @@ def run():
         assert '連系見込を更新' in f.locator('#power-section-records').inner_text()
         assert '220,000円' in f.locator('#power-section-connection').inner_text()
         done('retained forecast stages/missing bases/leap month end, six-month preparation target, invoice amounts not overwritten')
-        value('追加3','0012345678901234567890')
+        value('74','0012345678901234567890');value('追加3','0012345678901234567890')
         expect(f.locator('#power-point-match')).to_contain_text('一致')
         value('追加3','0000000000000000000001')
         expect(f.locator('#power-point-match')).to_contain_text('不一致')
@@ -303,6 +304,7 @@ def run():
         expect(cell('P-00001','79')).to_have_value('EXCEPTION-123')
         assert cell('P-00001','87').count()==0
         detail(0,'preparation')
+        value('utility','東京電力');value('internetTest','')
         assert field('87').is_disabled()
         assert not field('90').is_disabled()
         value('90','2026-11-06')
@@ -335,6 +337,7 @@ def run():
         section('operation')
         f.locator('#power-file-circular').set_input_files({'name':'最新版回覧板.xlsx','mimeType':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','buffer':b'name only'})
         save_case()
+        value('kind','太陽光');section('operation')
         assert field('101').is_disabled()
         for key in ['94','96','97','98']:
             assert f.locator(f'#power-value-{key}').count()==0
@@ -371,7 +374,7 @@ def run():
         done('reconnection protects drafts, supports cancellation, archives old application and retains other stages')
         # Existing department workflows remain independently usable.
         f.locator('[data-page=sales]').click()
-        f.locator('[data-sales-business=solar]').click()
+        f.locator('#sales-workspace .du-business-tabs').get_by_role('tab',name='太陽光',exact=True).click()
         f.locator('[data-sales-open=P-00001]').first.click()
         f.locator('[data-section=contract]').click()
         f.locator('#sales-demo-date').fill('2026-10-05')
@@ -382,7 +385,7 @@ def run():
         f.locator('#legal-demo-number').fill('SC-THREE-001')
         f.locator('#legal-demo-save').click()
         f.locator('[data-page=sales]').click()
-        f.locator('[data-sales-business=solar]').click()
+        f.locator('#sales-workspace .du-business-tabs').get_by_role('tab',name='太陽光',exact=True).click()
         f.locator('[data-sales-open=P-00001]').first.click()
         assert 'SC-THREE-001' in f.locator('#sales-demo-panel').inner_text()
         f.locator('[data-page=settings]').click()

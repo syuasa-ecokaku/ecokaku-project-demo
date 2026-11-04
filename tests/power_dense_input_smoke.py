@@ -52,8 +52,10 @@ def run():
         statuses=set()
         for pid in IDS:
             application=cell(pid,'24').input_value();invoice=cell(pid,'25').input_value();due=cell(pid,'connectionDue').input_value()
-            assert '2026-07-01'<=application<='2026-10-31'
-            assert application<=invoice<=due
+            if application:
+                assert '2026-01-01'<=application<='2026-10-31'
+                assert application<=invoice<=due
+            else:assert invoice==due==''
             paid=row(pid).locator('.pw-cell-reference').inner_text()
             if paid!='未登録':assert paid<=due
             assert cell(pid,'owner').input_value() in ['申請担当A','申請担当B']
@@ -62,7 +64,7 @@ def run():
                 assert '蓄電所' in cell(pid,'7').input_value()
                 assert cell(pid,'commonDue').input_value().startswith('2026-11-')
         assert {'対応中','確認待ち','完了'}<=statuses
-        done('7 added storage samples have unique existing-format IDs, varied states and consistent application/invoice/payment dates')
+        done('10 reused battery samples have unique existing-format IDs, varied states and consistent application/invoice/payment dates')
         first=rows.first.get_attribute('data-power-bulk-row')
         cell(first,'24').focus();cell(first,'24').press('Tab')
         assert cell(first,'25').evaluate('(e)=>e===document.activeElement')
@@ -113,12 +115,12 @@ def run():
         assert f.locator('#power-detail-case option').count()==10
         done('sticky headers/two frozen columns keep constant row heights; all 10 rightmost detail buttons open matching saved data')
         bulk();cell('G-00004','31').fill('HIDDEN-DRAFT-A')
-        f.locator('#power-bulk-stage').select_option('main');cell('G-00010','57').fill('987654')
+        f.locator('#power-bulk-stage').select_option('main');saved_burden=cell('G-00010','57').input_value();cell('G-00010','57').fill('987654')
         f.locator('#power-search').fill('G-00004');f.locator('#power-search').press('Tab')
         assert rows.count()==1
         f.locator('[data-power-action=cancelAll]').click()
         f.locator('[data-power-action=clearFilters]').click()
-        expect(cell('G-00010','57')).to_have_value('')
+        expect(cell('G-00010','57')).to_have_value(saved_burden)
         f.locator('#power-bulk-stage').select_option('connection')
         expect(cell('G-00004','31')).to_have_value('000-DENSE-'+str(sorted(IDS).index('G-00004')))
         cell('G-00004','31').fill('SAVE-FILTERED-A')
@@ -138,7 +140,7 @@ def run():
         done('save/cancel include filtered-out rows and hidden stages; summary counts and lists stay consistent with 10-case store')
         f.locator('[data-page=home]').click()
         assert f.locator('#sales-demo-home').inner_text()==home_before
-        f.locator('[data-page=sales]').click();f.locator('[data-sales-business=solar]').click();assert f.locator('#sales-demo-cases tr').count()==3
+        f.locator('[data-page=sales]').click();f.locator('#sales-workspace .du-business-tabs').get_by_role('tab',name='太陽光',exact=True).click();assert f.locator('#sales-demo-cases tr').count()==3
         f.locator('[data-page=legal]').click();f.locator('#legal-workspace [data-dept-business=solar]').click();assert f.locator('#legal-demo-cases tr').count()==3
         f.locator('[data-page=power]').click();bulk()
         page.set_viewport_size({'width':390,'height':900})

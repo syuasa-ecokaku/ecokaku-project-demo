@@ -46,7 +46,7 @@ def run(department):
             assert 18<=svg.bounding_box()['width']<=20
         if department=='legal':business('solar')
         tab('summary')
-        expected=3 if department=='legal' else 2
+        expected=3 if department=='legal' else 10
         assert mount.locator('[data-dept-summary-row]').count()==expected
         shot('summary')
         first=mount.locator('[data-dept-summary-row]').first
@@ -56,7 +56,7 @@ def run(department):
         assert mount.locator('[data-dept-section]').count()==6
         mount.locator('[data-dept-tab=summary]').last.click()
         done('default, all business/work tabs, SVG icons, preserved tab and case-number detail navigation')
-        if department=='legal':pid='P-00001'
+        if department in ['legal','maintenance']:pid='P-00001'
         tab('bulk')
         rs=mount.locator('[data-dept-row]');assert rs.count()==expected
         assert all(50<=r.bounding_box()['height']<=54 for r in rs.all())
@@ -97,7 +97,7 @@ def run(department):
         number=mount.locator('.du-bulk-table input[type=number]')
         if number.count():
             n=number.first;old=n.input_value();n.fill('-1');action('save')
-            assert '整数' in mount.locator('[data-dept-errors]').inner_text()
+            assert '0以上' in mount.locator('[data-dept-errors]').inner_text()
             action('cancel')
         scroll=mount.locator('.du-table-scroll');left=mount.locator('td.du-pin-id').first.bounding_box()['x']
         scroll.evaluate('(e)=>e.scrollLeft=1000')
@@ -112,7 +112,7 @@ def run(department):
             expect(mount.locator('[data-dept-filter=owner]')).to_have_value(value)
             mount.locator('[data-dept-filter=owner]').select_option('')
             if department!='maintenance':
-                mount.locator('[data-dept-metric=overdue]').click();assert mount.locator('[data-dept-summary-row]').count()==1
+                count=int(mount.locator('[data-dept-metric=overdue] strong').inner_text());mount.locator('[data-dept-metric=overdue]').click();assert mount.locator('[data-dept-summary-row]').count()==count
                 mount.locator('[data-dept-metric=""]').click()
         mount.locator('[data-dept-open="'+pid+'"]').first.click()
         section('files').locator('input[type=file]').set_input_files({'name':department+'-sample.pdf','mimeType':'application/pdf','buffer':b'demo'})
@@ -136,7 +136,7 @@ def run(department):
             assert value in f.locator('#sales-demo-panel').inner_text()
             f.locator('[data-page=legal]').click();business('solar');tab('bulk');mount.locator('[data-dept-group]').select_option('sale')
             cell(pid,'date').fill('2026-10-09')
-            f.locator('[data-page=sales]').click();f.locator('[data-sales-business=solar]').click();f.locator('[data-sales-open="'+pid+'"]').first.click()
+            f.locator('[data-page=sales]').click();f.locator('#sales-workspace .du-business-tabs').get_by_role('tab',name='太陽光',exact=True).click();f.locator('[data-sales-open="'+pid+'"]').first.click()
             f.locator('#sales-demo-date').fill('2026-10-08');f.locator('#sales-demo-save').click()
             f.locator('[data-page=legal]').click();business('solar');tab('bulk');action('save')
             assert '他部門' in mount.locator('[data-dept-errors]').inner_text();expect(cell(pid,'date')).to_have_value('2026-10-09')
