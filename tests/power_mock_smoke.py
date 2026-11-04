@@ -96,7 +96,7 @@ def run():
         f.locator('[data-page=power]').click()
         f.locator('[data-power-business=battery]').click()
         expect(f.locator('#power-tab-summary')).to_have_attribute('aria-selected', 'true')
-        assert f.locator('.pw-primary-tabs [role=tab]').all_text_contents() == ['サマリー','一括入力','詳細管理']
+        assert f.locator('.pw-primary-tabs [role=tab]').all_text_contents() == ['サマリー','データ入力','案件詳細']
         assert '2026-11-04' in f.locator('.pw-demo-note').inner_text()
         done('initial summary, exactly three primary tabs, explicit demo date')
         for status in ['', 'answer', 'payment', 'proof', 'overdue']:

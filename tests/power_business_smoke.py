@@ -48,7 +48,7 @@ def run():
         expect(f.locator('[data-power-business=all]')).to_have_attribute('aria-selected','true')
         expect(f.locator('#power-tab-summary')).to_have_attribute('aria-selected','true')
         assert f.locator('.pw-business-selector button').all_text_contents()==['全事業','蓄電池','太陽光','データセンター']
-        assert f.locator('.pw-primary-tabs [role=tab]').all_text_contents()==['サマリー','一括入力','詳細管理']
+        assert f.locator('.pw-primary-tabs [role=tab]').all_text_contents()==['サマリー','データ入力','案件詳細']
         selected=f.locator('[data-power-business=all]')
         assert selected.evaluate('(e)=>getComputedStyle(e).backgroundColor')=='rgb(234, 244, 255)'
         assert selected.evaluate('(e)=>getComputedStyle(e).color')=='rgb(22, 95, 159)'
