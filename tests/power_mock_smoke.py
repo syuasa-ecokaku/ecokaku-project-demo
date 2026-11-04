@@ -371,6 +371,8 @@ def run():
         done('reconnection protects drafts, supports cancellation, archives old application and retains other stages')
         # Existing department workflows remain independently usable.
         f.locator('[data-page=sales]').click()
+        f.locator('[data-sales-business=solar]').click()
+        f.locator('[data-sales-open=P-00001]').click()
         f.locator('[data-section=contract]').click()
         f.locator('#sales-demo-date').fill('2026-10-05')
         f.locator('#sales-demo-save').click()
@@ -380,6 +382,8 @@ def run():
         f.locator('#legal-demo-number').fill('SC-THREE-001')
         f.locator('#legal-demo-save').click()
         f.locator('[data-page=sales]').click()
+        f.locator('[data-sales-business=solar]').click()
+        f.locator('[data-sales-open=P-00001]').click()
         assert 'SC-THREE-001' in f.locator('#sales-demo-panel').inner_text()
         f.locator('[data-page=settings]').click()
         f.locator('[data-setting=masters]').click()

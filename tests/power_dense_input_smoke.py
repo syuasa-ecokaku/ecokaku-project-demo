@@ -138,7 +138,7 @@ def run():
         done('save/cancel include filtered-out rows and hidden stages; summary counts and lists stay consistent with 10-case store')
         f.locator('[data-page=home]').click()
         assert f.locator('#sales-demo-home').inner_text()==home_before
-        f.locator('[data-page=sales]').click();assert f.locator('#sales-demo-cases tr').count()==3
+        f.locator('[data-page=sales]').click();f.locator('[data-sales-business=solar]').click();assert f.locator('#sales-demo-cases tr').count()==3
         f.locator('[data-page=legal]').click();assert f.locator('#legal-demo-cases tr').count()==3
         f.locator('[data-page=power]').click();bulk()
         page.set_viewport_size({'width':390,'height':900})
