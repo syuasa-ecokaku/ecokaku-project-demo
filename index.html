@@ -1903,19 +1903,9 @@ html&gt;body{padding:0}&lt;/style&gt;
 #power-demo-main .pw-primary-tabs [aria-selected=true]{font-weight:500}
 #power-demo-main .pw-demo-note{margin-top:16px}
 #power-demo-main .pw-primary-tabs [aria-selected=true]{background:transparent;color:#1166bd;border-bottom-color:#2178ce}
-#power-demo-main .pw-cross-counts{grid-template-columns:repeat(4,minmax(0,1fr))}
-#power-demo-main .pw-cross-note{background:#f2f8fe;border:1px solid #d6e5f4;border-radius:8px;padding:16px;margin:16px 0;color:#446786;font-size:13px;line-height:1.8}
-#power-demo-main .pw-business-progress{width:100%;min-width:540px;background:white}
-#power-demo-main .pw-business-progress th,#power-demo-main .pw-business-progress td{padding:14px 18px;border-bottom:1px solid #e1e9f2;text-align:left}
-#power-demo-main .pw-business-progress thead{background:#edf4fc}
-#power-demo-main .pw-business-progress tbody th{font-weight:500}
-#power-common-table .pw-pin-name&gt;.pw-reference{display:block;line-height:1.6}
-#power-common-table .pw-pin-name&gt;small{display:block;margin-top:6px;font-size:11px;color:#687f95}
-#power-demo-main .pw-business-tag{display:inline-block;border:1px solid #c6def2;background:#edf6ff;color:#286796;border-radius:5px;padding:3px 8px;white-space:nowrap;font-size:12px}
 #power-demo-main .pw-business-placeholder{margin-top:22px;padding:36px 28px;background:white;border:1px solid #d6e3ef;border-radius:10px;min-height:230px}
 #power-demo-main .pw-business-placeholder h3{margin:20px 0 14px;color:#335d83;font-size:19px}
 #power-demo-main .pw-business-placeholder&gt;p:first-of-type{font-size:16px;line-height:1.9;color:#395e80}
-@media(max-width:850px){#power-demo-main .pw-cross-counts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){#power-demo-main .pw-business-selector{width:100%;box-sizing:border-box}#power-demo-main .pw-business-selector button{min-width:118px;padding:12px 16px}#power-demo-main .pw-business-placeholder{padding:24px 16px}}
 &lt;/style&gt;
 &lt;div id=&quot;ecokaku-departments-ui&quot; lang=&quot;ja&quot;&gt;
@@ -2382,7 +2372,7 @@ function powerHistoryHTML(list){return list.length?&#x27;&lt;ol class=&quot;pw-h
 // One saved store plus shared field-level draft patches for all three views.
 const powerDemoDate=&#x27;2026-11-04&#x27;;
 const powerDrafts=powerBusinessStores.battery.drafts,powerBadInputs=powerBusinessStores.battery.badInputs;
-const powerUI={business:&#x27;all&#x27;,tab:&#x27;summary&#x27;,selected:0,bulkStage:&#x27;connection&#x27;,search:&#x27;&#x27;,owner:&#x27;&#x27;,stage:&#x27;&#x27;,kind:&#x27;&#x27;,status:&#x27;&#x27;,sort:&#x27;progress&#x27;,open:{},errors:[],message:&#x27;&#x27;,reconnect:null,taskForms:{}};
+const powerUI={business:&#x27;battery&#x27;,tab:&#x27;summary&#x27;,selected:0,bulkStage:&#x27;connection&#x27;,search:&#x27;&#x27;,owner:&#x27;&#x27;,stage:&#x27;&#x27;,kind:&#x27;&#x27;,status:&#x27;&#x27;,sort:&#x27;progress&#x27;,open:{},errors:[],message:&#x27;&#x27;,reconnect:null,taskForms:{}};
 const powerSections=[[&#x27;basic&#x27;,&#x27;基本情報・設備仕様&#x27;],[&#x27;connection&#x27;,&#x27;接続検討&#x27;],[&#x27;main&#x27;,&#x27;本申込・保証金・負担金&#x27;],[&#x27;aggregator&#x27;,&#x27;アグリゲーター手続き&#x27;],[&#x27;preparation&#x27;,&#x27;連系準備・関連手続き&#x27;],[&#x27;receipt&#x27;,&#x27;受電・送電／供給開始&#x27;],[&#x27;operation&#x27;,&#x27;商用運転・市場参入&#x27;],[&#x27;records&#x27;,&#x27;履歴・タスク・関連書類&#x27;]];
 const powerBulkStages=[[&#x27;connection&#x27;,&#x27;接続検討&#x27;],[&#x27;main&#x27;,&#x27;本申込・支払&#x27;],[&#x27;aggregator&#x27;,&#x27;アグリゲーター&#x27;],[&#x27;grid&#x27;,&#x27;連系準備・受電&#x27;],[&#x27;operation&#x27;,&#x27;商用運転・市場参入&#x27;]];
 const powerAllFields=Object.fromEntries(Object.values(powerSchemas).flat().map(f=&gt;[f.key,f]));
@@ -2403,56 +2393,8 @@ const powerProjectBusinesses={
  &#x27;G-00003&#x27;:[&#x27;battery&#x27;]
 };
 const powerCommonKeys=[&#x27;owner&#x27;,&#x27;commonStatus&#x27;,&#x27;commonDue&#x27;];
-function powerRegisteredBusinesses(){
- return Object.values(powerBusinessConfigs).flatMap(config=&gt;{
-  if(!config.ready)return [];
-  return projects.flatMap((p,i)=&gt;{
-   if(!(powerProjectBusinesses[p.id]||[]).includes(config.id))return [];
-   const d=config.store.records[p.id];return d?[{p,i,d,business:config}]:[];
-  });
- });
-}
-function powerBusinessMetrics(row){
- const d=row.d,issues=row.business.issues?row.business.issues(d):[],due=d.values.commonDue||&#x27;&#x27;;
- const dates=[due,...issues.map(i=&gt;i.due)].filter(Boolean);
- return {active:d.values.commonStatus===&#x27;対応中&#x27;,late:issues.some(i=&gt;i.due&amp;&amp;i.due&lt;powerDemoDate)||(d.values.commonStatus!==&#x27;完了&#x27;&amp;&amp;!!due&amp;&amp;due&lt;powerDemoDate),month:dates.some(date=&gt;date.slice(0,7)===powerDemoDate.slice(0,7))};
-}
-function powerCrossCounts(rows){
- const unique=items=&gt;new Set(items.map(r=&gt;r.p.id)).size;
- return {total:unique(rows),active:unique(rows.filter(r=&gt;powerBusinessMetrics(r).active)),late:unique(rows.filter(r=&gt;powerBusinessMetrics(r).late)),month:unique(rows.filter(r=&gt;powerBusinessMetrics(r).month))};
-}
-function powerCrossTable(rows,mode=&#x27;summary&#x27;){
- return &#x27;&lt;div class=&quot;pw-summary-scroll&quot;&gt;&lt;table class=&quot;pw-summary-table&quot; id=&quot;power-all-cases&quot;&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;案件番号&lt;/th&gt;&lt;th&gt;事業種別&lt;/th&gt;&lt;th&gt;案件名&lt;/th&gt;&lt;th&gt;現在の工程&lt;/th&gt;&lt;th&gt;進捗状況&lt;/th&gt;&lt;th&gt;担当者&lt;/th&gt;&lt;th&gt;対応期限&lt;/th&gt;&#x27;+(mode===&#x27;detail&#x27;?&#x27;&lt;th&gt;案件詳細&lt;/th&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&#x27;+rows.map(({p,i,d,business})=&gt;&#x27;&lt;tr data-power-all-row=&quot;&#x27;+p.id+&#x27;&quot; data-business=&quot;&#x27;+business.id+&#x27;&quot;&gt;&lt;td&gt;&#x27;+p.id+&#x27;&lt;/td&gt;&lt;td&gt;&lt;span class=&quot;pw-business-tag&quot;&gt;&#x27;+business.label+&#x27;&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&#x27;+escapeText(p.name)+&#x27;&lt;/td&gt;&lt;td&gt;&#x27;+escapeText(business.stageLabel?business.stageLabel(d):&#x27;未登録&#x27;)+&#x27;&lt;/td&gt;&lt;td&gt;&#x27;+escapeText(d.values.commonStatus||&#x27;未登録&#x27;)+&#x27;&lt;/td&gt;&lt;td&gt;&#x27;+escapeText(d.values.owner||&#x27;未割当&#x27;)+&#x27;&lt;/td&gt;&lt;td&gt;&#x27;+escapeText(d.values.commonDue||&#x27;未登録&#x27;)+&#x27;&lt;/td&gt;&#x27;+(mode===&#x27;detail&#x27;?&#x27;&lt;td&gt;&lt;button type=&quot;button&quot; class=&quot;s-btn&quot; data-power-business-detail=&quot;&#x27;+business.id+&#x27;&quot; data-project=&quot;&#x27;+p.id+&#x27;&quot;&gt;&#x27;+business.label+&#x27;の案件詳細へ&lt;/button&gt;&lt;/td&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;/tr&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/tbody&gt;&lt;/table&gt;&#x27;+(rows.length?&#x27;&#x27;:&#x27;&lt;p class=&quot;pw-empty&quot;&gt;登録された案件はありません。&lt;/p&gt;&#x27;)+&#x27;&lt;/div&gt;&#x27;;
-}
-function powerCrossSummaryHTML(){
- const rows=powerRegisteredBusinesses(),counts=powerCrossCounts(rows);
- return &#x27;&lt;div class=&quot;pw-cross-note&quot;&gt;&lt;strong&gt;登録済みの架空サンプルを集計しています。&lt;/strong&gt;&lt;p&gt;太陽光・データセンターの案件は未登録です。「—」は未登録・集計対象外を示し、0件の実績を意味しません。&lt;/p&gt;&lt;/div&gt;&lt;div class=&quot;pw-counts pw-cross-counts&quot;&gt;&#x27;+[[&#x27;total&#x27;,&#x27;全案件数&#x27;],[&#x27;active&#x27;,&#x27;対応中案件数&#x27;],[&#x27;late&#x27;,&#x27;遅延案件数&#x27;],[&#x27;month&#x27;,&#x27;今月の期限到来案件数&#x27;]].map(([key,title])=&gt;&#x27;&lt;div class=&quot;pw-count&quot; data-power-cross-kpi=&quot;&#x27;+key+&#x27;&quot; data-count=&quot;&#x27;+counts[key]+&#x27;&quot;&gt;&lt;span&gt;&#x27;+title+&#x27;&lt;/span&gt;&lt;strong&gt;&#x27;+counts[key]+&#x27;&lt;small&gt;件&lt;/small&gt;&lt;/strong&gt;&lt;/div&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;section class=&quot;d-panel&quot;&gt;&lt;h3&gt;事業別進捗一覧&lt;/h3&gt;&lt;div class=&quot;pw-summary-scroll&quot;&gt;&lt;table class=&quot;pw-business-progress&quot;&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;事業種別&lt;/th&gt;&lt;th&gt;案件数&lt;/th&gt;&lt;th&gt;対応中&lt;/th&gt;&lt;th&gt;遅延&lt;/th&gt;&lt;th&gt;今月期限&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&#x27;+Object.values(powerBusinessConfigs).map(config=&gt;{const items=rows.filter(r=&gt;r.business.id===config.id),c=powerCrossCounts(items),registered=config.ready&amp;&amp;items.length&gt;0;return &#x27;&lt;tr data-power-business-progress=&quot;&#x27;+config.id+&#x27;&quot;&gt;&lt;th&gt;&#x27;+config.label+&#x27;&lt;/th&gt;&#x27;+[&#x27;total&#x27;,&#x27;active&#x27;,&#x27;late&#x27;,&#x27;month&#x27;].map(key=&gt;&#x27;&lt;td data-metric=&quot;&#x27;+key+&#x27;&quot;&gt;&#x27;+(registered?c[key]:&#x27;—&#x27;)+&#x27;&lt;/td&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/tr&gt;&#x27;;}).join(&#x27;&#x27;)+&#x27;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;&lt;/section&gt;&lt;details class=&quot;pw-definitions&quot;&gt;&lt;summary&gt;集計対象・判定方法&lt;/summary&gt;&lt;p&gt;基準日 &#x27;+powerDemoDate+&#x27;。対応中は共通対応状態が「対応中」の案件。遅延は未対応の登録期限超過、または完了以外の共通対応期限超過。今月期限は共通対応期限・未対応項目の期限が基準月に該当する案件です。対象外項目は除外します。KPIは案件番号で重複排除し、事業別集計と一覧は事業ごとに表示します。共通対応状態の更新で各工程の実績日は変更しません。&lt;/p&gt;&lt;/details&gt;&lt;div class=&quot;pw-listhead&quot;&gt;&lt;h3&gt;全事業案件一覧&lt;/h3&gt;&lt;span&gt;&#x27;+counts.total+&#x27;案件 ／ &#x27;+rows.length+&#x27;事業登録&lt;/span&gt;&lt;/div&gt;&#x27;+powerCrossTable(rows);
-}
-function powerCommonDraftCount(){
- return Object.values(powerDrafts).reduce((total,patches)=&gt;total+Object.keys(patches).filter(path=&gt;powerCommonKeys.some(key=&gt;path===&#x27;v:&#x27;+key)).length,0);
-}
-function powerCommonBulkHTML(){
- const rows=powerRegisteredBusinesses();
- return &#x27;&lt;div class=&quot;pw-cross-note&quot;&gt;&lt;h3&gt;全事業のデータ入力：共通項目のみ&lt;/h3&gt;&lt;p&gt;担当者・対応状態・共通対応期限を編集できます。工程番号、申請項目、契約・負担金などの事業固有項目は、上の事業切替から個別事業で編集してください。&lt;/p&gt;&lt;p&gt;未登録の太陽光・データセンター案件を作成・表示することはありません。&lt;/p&gt;&lt;/div&gt;&lt;div class=&quot;pw-savebar&quot;&gt;&lt;strong class=&quot;pw-draft-count&quot; data-scope=&quot;common&quot;&gt;共通項目の変更 &#x27;+powerCommonDraftCount()+&#x27;件（未保存）&lt;/strong&gt;&lt;button type=&quot;button&quot; class=&quot;s-btn s-primary&quot; data-power-action=&quot;saveCommon&quot;&gt;共通項目の変更をまとめて保存&lt;/button&gt;&lt;button type=&quot;button&quot; class=&quot;s-btn&quot; data-power-action=&quot;cancelCommon&quot;&gt;共通項目の未保存変更を取り消す&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;pw-table-scroll&quot;&gt;&lt;table class=&quot;pw-bulk-table&quot; id=&quot;power-common-table&quot;&gt;&lt;thead&gt;&lt;tr&gt;&lt;th class=&quot;pw-pin-id&quot;&gt;案件番号&lt;/th&gt;&lt;th class=&quot;pw-pin-name&quot;&gt;案件名（共通参照）&lt;/th&gt;&lt;th&gt;事業種別&lt;/th&gt;&#x27;+powerCommonKeys.map(key=&gt;&#x27;&lt;th&gt;&#x27;+powerAllFields[key].label+&#x27;&lt;/th&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&#x27;+rows.map(({p,business})=&gt;{const d=business.commonEditor?business.commonEditor.working(p):business.store.records[p.id];return &#x27;&lt;tr data-power-common-row=&quot;&#x27;+p.id+&#x27;&quot; data-business=&quot;&#x27;+business.id+&#x27;&quot;&gt;&lt;td class=&quot;pw-pin-id&quot;&gt;&#x27;+p.id+&#x27;&lt;/td&gt;&lt;td class=&quot;pw-pin-name&quot;&gt;&lt;span class=&quot;pw-reference&quot;&gt;&#x27;+escapeText(p.name)+&#x27;&lt;/span&gt;&lt;small&gt;共通案件情報参照&lt;/small&gt;&lt;/td&gt;&lt;td&gt;&#x27;+business.label+&#x27;&lt;/td&gt;&#x27;+powerCommonKeys.map(key=&gt;&#x27;&lt;td&gt;&#x27;+(business.commonEditor?business.commonEditor.control(p,d,business.fields[key],true):&#x27;&lt;span&gt;共通項目の入力は準備中です。&lt;/span&gt;&#x27;)+&#x27;&lt;/td&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/tr&gt;&#x27;;}).join(&#x27;&#x27;)+&#x27;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;&lt;p class=&quot;s-muted&quot;&gt;保存・取消は共通3項目の下書きだけが対象です。事業固有項目の下書きは保持します。下書きと保存内容は画面内のみで、再読み込みで元に戻ります。&lt;/p&gt;&#x27;;
-}
-function powerSaveCommon(cancel=false){
- const rows=powerRegisteredBusinesses().filter(r=&gt;r.business.id===&#x27;battery&#x27;),ids=[...new Set(rows.map(r=&gt;r.p.id))];
- if(!cancel){powerUI.errors=powerValidateProjects(ids,powerCommonKeys.map(key=&gt;powerAllFields[key]));if(powerUI.errors.length){powerUI.message=&#x27;共通項目の入力エラーを修正してください。下書きは保持しています。&#x27;;renderPower();return;}}
- let count=0;
- for(const id of ids){
-  const patches=powerDrafts[id]||{},paths=Object.keys(patches).filter(path=&gt;powerCommonKeys.some(key=&gt;path===&#x27;v:&#x27;+key));
-  if(!cancel&amp;&amp;paths.length){const next=powerClone(powerData[id]);for(const path of paths){powerPutPath(next,path,patches[path]);powerLog(next,powerAllFields[path.slice(2)].label+&#x27;を全事業画面から変更：&#x27;+(patches[path]||&#x27;未登録&#x27;));}powerData[id]=next;}
-  paths.forEach(path=&gt;{delete patches[path];count++;});powerCommonKeys.forEach(key=&gt;delete powerBadInputs[id+&#x27;:&#x27;+key]);
- }
- powerUI.errors=powerUI.errors.filter(e=&gt;!powerCommonKeys.includes(e.key));powerUI.message=count+&#x27;件の共通項目の下書きを&#x27;+(cancel?&#x27;取り消しました。&#x27;:&#x27;画面内で保存しました。&#x27;)+&#x27;事業固有項目の下書きは保持しています。&#x27;;renderPower();
-}
 function powerBusinessPlaceholderHTML(config){return &#x27;&lt;section class=&quot;pw-business-placeholder&quot; data-power-placeholder=&quot;&#x27;+config.id+&#x27;&quot;&gt;&lt;span class=&quot;s-pill&quot;&gt;準備中&lt;/span&gt;&lt;h3&gt;&#x27;+config.label+&#x27; ／ &#x27;+({summary:&#x27;サマリー&#x27;,bulk:&#x27;データ入力&#x27;,detail:&#x27;案件詳細&#x27;})[powerUI.tab]+&#x27;&lt;/h3&gt;&lt;p&gt;&#x27;+escapeText(config.message)+&#x27;&lt;/p&gt;&lt;p class=&quot;s-muted&quot;&gt;現在は画面の枠組みのみです。案件の入力・保存や業務工程の管理はまだ利用できません。&lt;/p&gt;&lt;/section&gt;&#x27;;}
 function powerBusinessBodyHTML(){
- if(powerUI.business===&#x27;all&#x27;){
-  if(powerUI.tab===&#x27;summary&#x27;)return powerCrossSummaryHTML();
-  if(powerUI.tab===&#x27;bulk&#x27;)return powerCommonBulkHTML();
-  return &#x27;&lt;div class=&quot;pw-cross-note&quot;&gt;&lt;h3&gt;全事業の案件詳細&lt;/h3&gt;&lt;p&gt;事業固有の工程・書類・履歴は、各事業の案件詳細で確認できます。&lt;/p&gt;&lt;/div&gt;&#x27;+powerCrossTable(powerRegisteredBusinesses(),&#x27;detail&#x27;);
- }
  const config=powerBusinessConfigs[powerUI.business];
  if(!config.ready)return powerBusinessPlaceholderHTML(config);
  return config.render[powerUI.tab]();
@@ -2546,11 +2488,12 @@ function powerDetailHTML(){
 }
 function powerErrorHTML(){return powerUI.errors.length?&#x27;&lt;div class=&quot;pw-errors&quot; role=&quot;alert&quot;&gt;&lt;strong&gt;保存できません。下書きは保持しています。&lt;/strong&gt;&lt;ul&gt;&#x27;+powerUI.errors.map(e=&gt;&#x27;&lt;li&gt;&#x27;+powerLink(projects.findIndex(p=&gt;p.id===e.project),powerSectionFor(e.key),e.project+&#x27; ／ &#x27;+e.label+&#x27;：&#x27;+e.message,e.key)+&#x27;&lt;/li&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/ul&gt;&lt;/div&gt;&#x27;:&#x27;&#x27;;}
 function renderPower(){
+ if(!Object.hasOwn(powerBusinessConfigs,powerUI.business))powerUI.business=&#x27;battery&#x27;;
  projects.forEach(powerRecord);
- const businesses=[[&#x27;all&#x27;,&#x27;全事業&#x27;],...Object.values(powerBusinessConfigs).map(config=&gt;[config.id,config.label])];
- const businessIcons={all:&#x27;layout-grid&#x27;,battery:&#x27;battery&#x27;,solar:&#x27;solar-panel&#x27;,datacenter:&#x27;server&#x27;};
+ const businesses=Object.values(powerBusinessConfigs).map(config=&gt;[config.id,config.label]);
+ const businessIcons={battery:&#x27;battery&#x27;,solar:&#x27;solar-panel&#x27;,datacenter:&#x27;server&#x27;};
  const tabs=[[&#x27;summary&#x27;,&#x27;サマリー&#x27;],[&#x27;bulk&#x27;,&#x27;データ入力&#x27;],[&#x27;detail&#x27;,&#x27;案件詳細&#x27;]];
- const showEdits=powerUI.business===&#x27;all&#x27;||powerUI.business===&#x27;battery&#x27;;
+ const showEdits=powerUI.business===&#x27;battery&#x27;;
  q(&#x27;#power-workspace&#x27;).innerHTML=&#x27;&lt;div class=&quot;pw-business-selector&quot; role=&quot;tablist&quot; aria-label=&quot;事業種別&quot;&gt;&#x27;+businesses.map(([key,title])=&gt;&#x27;&lt;button type=&quot;button&quot; role=&quot;tab&quot; id=&quot;power-business-tab-&#x27;+key+&#x27;&quot; aria-selected=&quot;&#x27;+(powerUI.business===key)+&#x27;&quot; aria-controls=&quot;power-business-panel&quot; tabindex=&quot;&#x27;+(powerUI.business===key?&#x27;0&#x27;:&#x27;-1&#x27;)+&#x27;&quot; data-power-business=&quot;&#x27;+key+&#x27;&quot;&gt;&lt;span class=&quot;pw-business-icon&quot; aria-hidden=&quot;true&quot;&gt;&lt;i data-lucide=&quot;&#x27;+businessIcons[key]+&#x27;&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span&gt;&#x27;+title+&#x27;&lt;/span&gt;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;div id=&quot;power-business-panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;power-business-tab-&#x27;+powerUI.business+&#x27;&quot;&gt;&lt;div class=&quot;pw-primary-tabs&quot; role=&quot;tablist&quot; aria-label=&quot;電力申請の表示切替&quot;&gt;&#x27;+tabs.map(([key,title])=&gt;&#x27;&lt;button type=&quot;button&quot; role=&quot;tab&quot; id=&quot;power-tab-&#x27;+key+&#x27;&quot; aria-controls=&quot;power-view&quot; aria-selected=&quot;&#x27;+(powerUI.tab===key)+&#x27;&quot; data-power-tab=&quot;&#x27;+key+&#x27;&quot;&gt;&#x27;+title+&#x27;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;div class=&quot;pw-demo-note&quot;&gt;&lt;strong&gt;架空データ・デモ基準日 &#x27;+powerDemoDate+&#x27;&lt;/strong&gt;&lt;span&gt;下書きと保存内容は画面内のみ。再読み込みで初期化。サーバー保存・実際の部門間共有・外部送信は行いません。&lt;/span&gt;&lt;/div&gt;&lt;p id=&quot;power-message&quot; role=&quot;status&quot;&gt;&#x27;+escapeText(showEdits?powerUI.message:&#x27;&#x27;)+&#x27;&lt;/p&gt;&#x27;+(showEdits?powerErrorHTML():&#x27;&#x27;)+&#x27;&lt;div id=&quot;power-view&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;power-tab-&#x27;+powerUI.tab+&#x27;&quot;&gt;&#x27;+powerBusinessBodyHTML()+&#x27;&lt;/div&gt;&lt;/div&gt;&#x27;;
  settingsRefreshIcons();powerRefreshLive();
  const rail=q(&#x27;.pw-business-selector&#x27;),active=rail.querySelector(&#x27;[aria-selected=true]&#x27;);
@@ -2571,7 +2514,7 @@ function powerRefreshLive(){
   el.disabled=!!na;el.classList.toggle(&#x27;is-dirty&#x27;,dirty);el.classList.toggle(&#x27;is-error&#x27;,powerUI.errors.some(e=&gt;e.project===p.id&amp;&amp;e.key===key));
   const state=el.parentElement.querySelector(&#x27;[data-state-for=&quot;&#x27;+key+&#x27;&quot;]&#x27;);if(state)state.textContent=na?&#x27;対象外&#x27;:dirty?&#x27;未保存&#x27;:d.values[key]!==undefined&amp;&amp;d.values[key]!==&#x27;&#x27;?&#x27;入力済み&#x27;:&#x27;未入力&#x27;;
  });
- qa(&#x27;.pw-draft-count&#x27;).forEach(el=&gt;el.textContent=el.dataset.scope===&#x27;common&#x27;?&#x27;共通項目の変更 &#x27;+powerCommonDraftCount()+&#x27;件（未保存）&#x27;:&#x27;変更項目 &#x27;+powerDraftCount(el.dataset.scope===&#x27;all&#x27;?undefined:[projects[powerUI.selected].id])+&#x27;件（未保存）&#x27;);
+ qa(&#x27;.pw-draft-count&#x27;).forEach(el=&gt;el.textContent=&#x27;変更項目 &#x27;+powerDraftCount(el.dataset.scope===&#x27;all&#x27;?undefined:[projects[powerUI.selected].id])+&#x27;件（未保存）&#x27;);
  if(powerUI.tab===&#x27;detail&#x27;){
   const d=powerWorking(projects[powerUI.selected]),forecast=q(&#x27;#power-forecast-result&#x27;);if(forecast){const f=powerForecast(d);forecast.innerHTML=&#x27;&lt;strong&gt;&#x27;+escapeText(f.date||&#x27;算出に必要な日付が未登録&#x27;)+&#x27;&lt;/strong&gt;&lt;br&gt;&#x27;+escapeText(f.basis)+&#x27;&lt;br&gt;&#x27;+escapeText(f.detail);}
   const point=q(&#x27;#power-point-match&#x27;);if(point){const wrapper=document.createElement(&#x27;div&#x27;);wrapper.innerHTML=powerPointHTML(d);point.replaceWith(wrapper.firstElementChild);}
@@ -2635,7 +2578,6 @@ function powerHandleClick(b){
  if(!b.closest(&#x27;#power-demo-main&#x27;))return false;
  const p=projects[powerUI.selected],d=powerWorking(p);
  if(b.dataset.powerBusiness){powerUI.business=b.dataset.powerBusiness;renderPower();return true;}
- if(b.dataset.powerBusinessDetail){const index=projects.findIndex(p=&gt;p.id===b.dataset.project);if(b.dataset.powerBusinessDetail===&#x27;battery&#x27;)powerOpenDetail(index);return true;}
  if(b.dataset.powerTab){powerUI.tab=b.dataset.powerTab;renderPower();return true;}
  if(b.dataset.powerOpen!==undefined){powerOpenDetail(Number(b.dataset.powerOpen),b.dataset.powerSection,b.dataset.powerFocus);return true;}
  if(b.dataset.powerCard!==undefined){powerUI.status=b.dataset.powerCard;renderPower();return true;}
@@ -2643,8 +2585,6 @@ function powerHandleClick(b){
  if(b.dataset.powerQbRemove!==undefined){d.qb.splice(Number(b.dataset.powerQbRemove),1);powerSetDraft(p,&#x27;qb&#x27;,d.qb);renderPower();return true;}
  if(b.dataset.powerTaskRemove!==undefined){powerSetDraft(p,&#x27;tasks&#x27;,d.tasks.filter(t=&gt;t.id!==Number(b.dataset.powerTaskRemove)));renderPower();return true;}
  const action=b.dataset.powerAction;if(!action)return false;
- if(action===&#x27;saveCommon&#x27;){powerSaveCommon();return true;}
- if(action===&#x27;cancelCommon&#x27;){powerSaveCommon(true);return true;}
  if(action===&#x27;clearFilters&#x27;){Object.assign(powerUI,{search:&#x27;&#x27;,owner:&#x27;&#x27;,stage:&#x27;&#x27;,kind:&#x27;&#x27;,status:&#x27;&#x27;,sort:&#x27;progress&#x27;});renderPower();}
  if(action===&#x27;saveAll&#x27;)powerSave(projects.map(p=&gt;p.id));
  if(action===&#x27;saveCase&#x27;)powerSave([p.id]);
@@ -2826,7 +2766,7 @@ if(b.dataset.dashOpen!==undefined){const t=dashboardTasks[Number(b.dataset.dashO
 if(b.dataset.dashProject!==undefined){selected=Number(b.dataset.dashProject);section=&#x27;contract&#x27;;if(selected===2)powerUI.selected=selected;showPage(selected===2?&#x27;power&#x27;:&#x27;sales&#x27;);return;}
 
 if(settingsHandleClick(b))return;
-if(b.dataset.page){showPage(b.dataset.page);return;}
+if(b.dataset.page){if(b.dataset.page===&#x27;power&#x27;){powerUI.business=&#x27;battery&#x27;;powerUI.tab=&#x27;summary&#x27;;}showPage(b.dataset.page);return;}
 if(b.dataset.legalCase!==undefined){selected=Number(b.dataset.legalCase);renderLegal();render();return;}
 if(b.dataset.legalTab){legalTab=b.dataset.legalTab;renderLegal();return;}
 if(b.dataset.openSales){section=b.dataset.openSales;showPage(&#x27;sales&#x27;);return;}
