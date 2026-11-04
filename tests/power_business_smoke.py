@@ -55,9 +55,9 @@ def run():
         expect(f.locator('#power-tab-summary')).to_have_attribute('aria-selected','true')
         assert f.locator('.pw-business-selector button').all_text_contents()==['蓄電池','太陽光','データセンター']
         assert f.locator('.pw-primary-tabs [role=tab]').all_text_contents()==['サマリー','データ入力','案件詳細']
-        assert f.locator('[data-power-summary-row]').count()==3
-        assert set(f.locator('[data-power-summary-row]').evaluate_all('(els)=>els.map(e=>e.dataset.powerSummaryRow)'))=={'P-00001','P-00002','G-00003'}
-        assert sum(int(x.inner_text().replace('件','')) for x in f.locator('[data-power-stage-count]').all())==3
+        assert f.locator('[data-power-summary-row]').count()==10
+        assert set(f.locator('[data-power-summary-row]').evaluate_all('(els)=>els.map(e=>e.dataset.powerSummaryRow)'))=={'P-00001','P-00002',*(f'G-{i:05d}' for i in range(3,11))}
+        assert sum(int(x.inner_text().replace('件','')) for x in f.locator('[data-power-stage-count]').all())==10
         selected=f.locator('[data-power-business=battery]')
         assert selected.evaluate('(e)=>getComputedStyle(e).backgroundColor')=='rgb(234, 244, 255)'
         assert selected.evaluate('(e)=>getComputedStyle(e).borderBottomWidth')=='3px'

@@ -106,11 +106,13 @@ def run():
             assert f.locator('[data-power-summary-row]').count() == count
             expect(f.locator('#power-list-count')).to_have_text(f'{count}件')
         f.locator('[data-power-card=""]').click()
-        assert f.locator('[data-power-summary-row]').first.get_attribute('data-power-summary-row') == 'P-00002'
+        assert f.locator('[data-power-summary-row]').first.get_attribute('data-power-summary-row') == 'G-00007'
         done('all count cards match filtered list and progress ordering')
         f.locator('[data-power-filter=owner]').select_option('申請担当A')
         f.locator('[data-power-filter=kind]').select_option('蓄電池')
         f.locator('[data-power-filter=sort]').select_option('deadline')
+        f.locator('#power-search').fill('G-00003')
+        f.locator('#power-search').press('Tab')
         assert f.locator('[data-power-summary-row]').count() == 1
         f.locator('[data-power-summary-row="G-00003"] [data-power-section=basic]').click()
         expect(f.locator('#power-detail-case')).to_have_value('2')
@@ -151,7 +153,7 @@ def run():
         table.evaluate('(e)=>{e.style.removeProperty("height");e.scrollTop=0;e.scrollLeft=0}')
         f.locator('#power-bulk-stage').select_option('main')
         assert cell('P-00001','42').count()==1 and cell('P-00001','24').count()==0
-        assert f.locator('[data-power-field="45"]').count()==0 and '経理参照' in f.locator('.pw-bulk-table').inner_text()
+        assert f.locator('[data-power-field="45"]').count()==0 and '経理参照' in f.locator('.pw-cell-reference').first.get_attribute('title')
         done('five-stage columns, read-only accounting, sticky IDs/names and non-overlapping sticky headers')
         bulk('connection')
         set_value(cell('P-00001','28'),'2027-02-01')
@@ -212,25 +214,28 @@ def run():
         bulk('connection')
         expect(cell('P-00001','28')).to_have_value('2027-02-10')
         done('cancel removes drafts across hidden stages and filtered-out projects without changing saved values')
+        tab('summary')
+        baseline_answer=int(f.locator('[data-power-card=answer]').get_attribute('data-count'))
+        baseline_payment=int(f.locator('[data-power-card=payment]').get_attribute('data-count'))
         detail(2,'connection')
         f.locator('[data-power-na="29"]').check()
         save_case()
         tab('summary')
-        assert f.locator('[data-power-card=answer]').get_attribute('data-count')=='0'
+        assert int(f.locator('[data-power-card=answer]').get_attribute('data-count'))==baseline_answer-1
         bulk('connection')
         assert cell('G-00003','29').is_disabled()
-        assert '対象外' in cell('G-00003','29').locator('xpath=..').inner_text()
+        expect(cell('G-00003','29')).to_have_value('対象外')
         detail(2,'connection')
         f.locator('[data-power-na="29"]').uncheck()
         save_case()
         tab('summary')
-        assert f.locator('[data-power-card=answer]').get_attribute('data-count')=='1'
+        assert int(f.locator('[data-power-card=answer]').get_attribute('data-count'))==baseline_answer
         detail(2,'connection')
         f.locator('[data-power-scope=connection]').check()
         save_case()
         tab('summary')
-        assert f.locator('[data-power-card=answer]').get_attribute('data-count')=='0'
-        assert f.locator('[data-power-card=payment]').get_attribute('data-count')=='1'
+        assert int(f.locator('[data-power-card=answer]').get_attribute('data-count'))==baseline_answer-1
+        assert int(f.locator('[data-power-card=payment]').get_attribute('data-count'))==baseline_payment-1
         detail(2,'connection')
         f.locator('[data-power-scope=connection]').uncheck()
         save_case()
