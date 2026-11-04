@@ -193,7 +193,7 @@ def run():
         for d in ['realestate','sales','legal','procurement','construction','maintenance']:
             nav(d);shot(d,'summary');detail(d,'P-00001');shot(d,'detail')
         page.set_viewport_size({'width':800,'height':1050});nav('sales');tab('sales','bulk');shot('sales','narrow-input')
-        f.locator('[data-page=home]').click();assert f.locator('#dash-projects tr').count()==6
+        f.locator('[data-page=home]').click();assert f.locator('#home-kpi-list').get_attribute('data-total-count')=='10'
         f.locator('[data-page=settings]').click();f.locator('[data-setting=users]').click();assert f.locator('#settings-user-name').is_visible()
         assert not errors,errors
         assert not failed,failed

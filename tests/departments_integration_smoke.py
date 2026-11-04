@@ -81,7 +81,7 @@ def run():
         assert 'CHECK-P-00001-002' not in events.inner_text()
         done('maintenance saves generate separate inspection record IDs, without contaminating other cases/equipment')
         nav('home');assert f.locator('#sales-demo-home h2').is_visible()
-        assert '全6案件' in f.locator('#dash-pipeline').inner_text() or '6' in f.locator('#dash-pipeline').inner_text()
+        assert f.locator('[data-home-ring-total]').inner_text()=='10'
         nav('settings');f.locator('[data-setting=users]').click();assert f.locator('#settings-user-name').is_visible()
         assert not errors,errors
         assert not writes,writes

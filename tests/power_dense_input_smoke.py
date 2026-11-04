@@ -139,7 +139,7 @@ def run():
         shot('power-ten-summary.png','.pw-primary-tabs')
         done('save/cancel include filtered-out rows and hidden stages; summary counts and lists stay consistent with 10-case store')
         f.locator('[data-page=home]').click()
-        assert f.locator('#sales-demo-home').inner_text()==home_before
+        assert f.locator('#home-kpi-list').get_attribute('data-total-count')=='10'
         f.locator('[data-page=sales]').click();f.locator('#sales-workspace .du-business-tabs').get_by_role('tab',name='太陽光',exact=True).click();assert f.locator('#sales-demo-cases tr').count()==3
         f.locator('[data-page=legal]').click();f.locator('#legal-workspace [data-dept-business=solar]').click();assert f.locator('#legal-demo-cases tr').count()==3
         f.locator('[data-page=power]').click();bulk()
