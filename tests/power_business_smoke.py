@@ -27,8 +27,8 @@ def run():
             passed.append(name);print('PASS',name,flush=True)
         def business(key):
             f.locator(f'[data-power-business="{key}"]').click()
-            expect(f.locator(f'[data-power-business="{key}"]')).to_have_attribute('aria-pressed','true')
-            assert f.locator('.pw-business-selector [aria-pressed=true]').count()==1
+            expect(f.locator(f'[data-power-business="{key}"]')).to_have_attribute('aria-selected','true')
+            assert f.locator('.pw-business-selector [aria-selected=true]').count()==1
         def tab(key):
             f.locator(f'.pw-primary-tabs [data-power-tab="{key}"]').click()
             expect(f.locator(f'#power-tab-{key}')).to_have_attribute('aria-selected','true')
@@ -43,14 +43,35 @@ def run():
             return el
         def shot(name,target='.pw-business-selector'):
             f.locator(target).scroll_into_view_if_needed()
+            page.frames[1].evaluate('document.activeElement?.blur()')
             page.screenshot(path=str(OUTPUT/name))
-        expect(f.locator('[data-power-business=all]')).to_have_attribute('aria-pressed','true')
+        expect(f.locator('[data-power-business=all]')).to_have_attribute('aria-selected','true')
         expect(f.locator('#power-tab-summary')).to_have_attribute('aria-selected','true')
         assert f.locator('.pw-business-selector button').all_text_contents()==['全事業','蓄電池','太陽光','データセンター']
         assert f.locator('.pw-primary-tabs [role=tab]').all_text_contents()==['サマリー','一括入力','詳細管理']
         selected=f.locator('[data-power-business=all]')
-        assert selected.evaluate('(e)=>getComputedStyle(e).backgroundColor')=='rgb(25, 118, 201)'
-        assert selected.evaluate('(e)=>getComputedStyle(e).color')=='rgb(255, 255, 255)'
+        assert selected.evaluate('(e)=>getComputedStyle(e).backgroundColor')=='rgb(234, 244, 255)'
+        assert selected.evaluate('(e)=>getComputedStyle(e).color')=='rgb(22, 95, 159)'
+        assert selected.evaluate('(e)=>getComputedStyle(e).borderBottomWidth')=='3px'
+        for key,icon in [('all','layout-grid'),('battery','battery'),('solar','solar-panel'),('datacenter','server')]:
+            button=f.locator(f'[data-power-business={key}]')
+            svg=button.locator('.pw-business-icon svg')
+            expect(svg).to_have_count(1)
+            expect(svg).to_have_attribute('data-lucide',icon)
+            assert 18<=svg.bounding_box()['width']<=20
+            assert button.locator('.pw-business-icon').get_attribute('aria-hidden')=='true'
+        assert f.locator('.pw-primary-tabs svg, .pw-primary-tabs [data-lucide]').count()==0
+        assert f.locator('.pw-business-selector').evaluate('(e)=>e.compareDocumentPosition(document.querySelector(".pw-primary-tabs")) & Node.DOCUMENT_POSITION_FOLLOWING')
+        assert f.locator('.pw-primary-tabs').evaluate('(e)=>e.compareDocumentPosition(document.querySelector(".pw-demo-note")) & Node.DOCUMENT_POSITION_FOLLOWING')
+        selected.focus();selected.press('End')
+        expect(f.locator('[data-power-business=datacenter]')).to_have_attribute('aria-selected','true')
+        f.locator('[data-power-business=datacenter]').press('ArrowRight')
+        expect(f.locator('[data-power-business=all]')).to_have_attribute('aria-selected','true')
+        f.locator('[data-power-business=all]').press('ArrowLeft')
+        expect(f.locator('[data-power-business=datacenter]')).to_have_attribute('aria-selected','true')
+        f.locator('[data-power-business=datacenter]').press('Home')
+        expect(f.locator('[data-power-business=all]')).to_have_attribute('aria-selected','true')
+        done('four unified SVG icons, blue underline, text-only secondary tabs, layout order and keyboard navigation')
         assert 'Meiryo' in f.locator('#power-demo-main').evaluate('(e)=>getComputedStyle(e).fontFamily')
         assert f.locator('[data-power-cross-kpi=total]').get_attribute('data-count')=='3'
         assert f.locator('[data-power-all-row]').count()==3
@@ -132,7 +153,7 @@ def run():
         assert f.locator('.pw-errors').count()==0
         business('all')
         f.locator('[data-power-all-row=P-00001] [data-power-business-detail=battery]').click()
-        expect(f.locator('[data-power-business=battery]')).to_have_attribute('aria-pressed','true')
+        expect(f.locator('[data-power-business=battery]')).to_have_attribute('aria-selected','true')
         expect(f.locator('#power-tab-detail')).to_have_attribute('aria-selected','true')
         expect(f.locator('#power-detail-case')).to_have_value('0')
         done('common cancel preserves specific drafts; task/file drafts and saved data survive every business; cross-business detail links work')
@@ -142,9 +163,14 @@ def run():
         done('business/tab switches never navigate or reload; header and side menu unchanged')
         business('all');tab('bulk');shot('power-all-common-bulk.png')
         page.set_viewport_size({'width':390,'height':900})
+        assert f.locator('.pw-business-selector').evaluate('(e)=>e.scrollWidth>e.clientWidth')
+        y_positions=f.locator('.pw-business-selector button').evaluate_all('(els)=>els.map(e=>e.getBoundingClientRect().y)')
+        assert max(y_positions)-min(y_positions)<2
         for key in ['all','battery','solar','datacenter']:
             business(key)
-            assert f.locator('[data-power-business='+key+']').is_visible()
+            active=f.locator('[data-power-business='+key+']')
+            assert active.is_visible()
+            assert active.evaluate('(e)=>{const r=e.closest(".pw-business-selector").getBoundingClientRect(),b=e.getBoundingClientRect();return b.left>=r.left-1&&b.right<=r.right+1;}')
         shot('power-business-mobile.png')
         assert not errors,errors
         assert not failed,failed

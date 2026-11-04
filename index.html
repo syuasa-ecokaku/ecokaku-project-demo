@@ -1890,10 +1890,18 @@ html&gt;body{padding:0}&lt;/style&gt;
 &lt;style&gt;
 #power-demo-main{font-family:Meiryo,&quot;メイリオ&quot;,&quot;Yu Gothic&quot;,sans-serif}
 #power-demo-main input,#power-demo-main select,#power-demo-main textarea,#power-demo-main button{font-family:inherit}
-#power-demo-main .pw-business-selector{display:flex;flex-wrap:wrap;gap:4px;align-items:center;width:fit-content;max-width:100%;padding:5px;margin:22px 0 8px;background:#eaf2fb;border:1px solid #c9dbee;border-radius:12px}
-#power-demo-main .pw-business-selector button{padding:12px 24px;min-width:110px;border:1px solid #d6e2ef;border-radius:8px;background:white;color:#657489;font-size:14px;line-height:1.4}
-#power-demo-main .pw-business-selector button[aria-pressed=true]{background:#1976c9;color:white;border-color:#1976c9;box-shadow:0 2px 4px #155a8b20;font-weight:600}
-#power-demo-main .pw-primary-tabs{margin-top:12px}
+#power-demo-main .pw-business-selector{display:flex;flex-wrap:nowrap;gap:6px;align-items:stretch;max-width:100%;padding:0;margin:22px 0 18px;border-bottom:1px solid #d3e1ef;overflow-x:auto}
+#power-demo-main .pw-business-selector button{display:inline-flex;align-items:center;justify-content:center;gap:9px;flex-shrink:0;padding:14px 22px;min-height:54px;min-width:122px;border:0;border-bottom:3px solid transparent;border-radius:4px 4px 0 0;background:white;color:#68788a;font-size:15px;line-height:1.4;white-space:nowrap}
+#power-demo-main .pw-business-selector button[aria-selected=true]{background:#eaf4ff;color:#165f9f;border-bottom-color:#2277c8;font-weight:600}
+#power-demo-main .pw-business-selector button:hover{background:#f3f8fd}
+#power-demo-main .pw-business-selector button[aria-selected=true]:hover{background:#eaf4ff}
+#power-demo-main .pw-business-selector button:focus-visible{outline:2px solid #2782d4;outline-offset:-3px}
+#power-demo-main .pw-business-icon{--icon-size:20px;display:inline-flex;width:20px;height:20px;flex-shrink:0}
+#power-demo-main .pw-business-icon svg{width:20px;height:20px;stroke-width:1.8}
+#power-demo-main .pw-primary-tabs{margin-top:0;margin-bottom:16px}
+#power-demo-main .pw-primary-tabs button{font-size:14px;padding:11px 24px;font-weight:400}
+#power-demo-main .pw-primary-tabs [aria-selected=true]{font-weight:500}
+#power-demo-main .pw-demo-note{margin-top:16px}
 #power-demo-main .pw-primary-tabs [aria-selected=true]{background:transparent;color:#1166bd;border-bottom-color:#2178ce}
 #power-demo-main .pw-cross-counts{grid-template-columns:repeat(4,minmax(0,1fr))}
 #power-demo-main .pw-cross-note{background:#f2f8fe;border:1px solid #d6e5f4;border-radius:8px;padding:16px;margin:16px 0;color:#446786;font-size:13px;line-height:1.8}
@@ -1908,7 +1916,7 @@ html&gt;body{padding:0}&lt;/style&gt;
 #power-demo-main .pw-business-placeholder h3{margin:20px 0 14px;color:#335d83;font-size:19px}
 #power-demo-main .pw-business-placeholder&gt;p:first-of-type{font-size:16px;line-height:1.9;color:#395e80}
 @media(max-width:850px){#power-demo-main .pw-cross-counts{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:650px){#power-demo-main .pw-business-selector{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;box-sizing:border-box}#power-demo-main .pw-business-selector button{min-width:0;padding:12px 10px}#power-demo-main .pw-business-placeholder{padding:24px 16px}}
+@media(max-width:650px){#power-demo-main .pw-business-selector{width:100%;box-sizing:border-box}#power-demo-main .pw-business-selector button{min-width:118px;padding:12px 16px}#power-demo-main .pw-business-placeholder{padding:24px 16px}}
 &lt;/style&gt;
 &lt;div id=&quot;ecokaku-departments-ui&quot; lang=&quot;ja&quot;&gt;
 &lt;style&gt;
@@ -2540,10 +2548,22 @@ function powerErrorHTML(){return powerUI.errors.length?&#x27;&lt;div class=&quot
 function renderPower(){
  projects.forEach(powerRecord);
  const businesses=[[&#x27;all&#x27;,&#x27;全事業&#x27;],...Object.values(powerBusinessConfigs).map(config=&gt;[config.id,config.label])];
+ const businessIcons={all:&#x27;layout-grid&#x27;,battery:&#x27;battery&#x27;,solar:&#x27;solar-panel&#x27;,datacenter:&#x27;server&#x27;};
  const tabs=[[&#x27;summary&#x27;,&#x27;サマリー&#x27;],[&#x27;bulk&#x27;,&#x27;一括入力&#x27;],[&#x27;detail&#x27;,&#x27;詳細管理&#x27;]];
  const showEdits=powerUI.business===&#x27;all&#x27;||powerUI.business===&#x27;battery&#x27;;
- q(&#x27;#power-workspace&#x27;).innerHTML=&#x27;&lt;div class=&quot;pw-demo-note&quot;&gt;&lt;strong&gt;架空データ・デモ基準日 &#x27;+powerDemoDate+&#x27;&lt;/strong&gt;&lt;span&gt;下書きと保存内容は画面内のみ。再読み込みで初期化。サーバー保存・実際の部門間共有・外部送信は行いません。&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;pw-business-selector&quot; role=&quot;group&quot; aria-label=&quot;事業種別&quot;&gt;&#x27;+businesses.map(([key,title])=&gt;&#x27;&lt;button type=&quot;button&quot; aria-pressed=&quot;&#x27;+(powerUI.business===key)+&#x27;&quot; data-power-business=&quot;&#x27;+key+&#x27;&quot;&gt;&#x27;+title+&#x27;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;div class=&quot;pw-primary-tabs&quot; role=&quot;tablist&quot; aria-label=&quot;電力申請の表示切替&quot;&gt;&#x27;+tabs.map(([key,title])=&gt;&#x27;&lt;button type=&quot;button&quot; role=&quot;tab&quot; id=&quot;power-tab-&#x27;+key+&#x27;&quot; aria-controls=&quot;power-view&quot; aria-selected=&quot;&#x27;+(powerUI.tab===key)+&#x27;&quot; data-power-tab=&quot;&#x27;+key+&#x27;&quot;&gt;&#x27;+title+&#x27;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;p id=&quot;power-message&quot; role=&quot;status&quot;&gt;&#x27;+escapeText(showEdits?powerUI.message:&#x27;&#x27;)+&#x27;&lt;/p&gt;&#x27;+(showEdits?powerErrorHTML():&#x27;&#x27;)+&#x27;&lt;div id=&quot;power-view&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;power-tab-&#x27;+powerUI.tab+&#x27;&quot;&gt;&#x27;+powerBusinessBodyHTML()+&#x27;&lt;/div&gt;&#x27;;
+ q(&#x27;#power-workspace&#x27;).innerHTML=&#x27;&lt;div class=&quot;pw-business-selector&quot; role=&quot;tablist&quot; aria-label=&quot;事業種別&quot;&gt;&#x27;+businesses.map(([key,title])=&gt;&#x27;&lt;button type=&quot;button&quot; role=&quot;tab&quot; id=&quot;power-business-tab-&#x27;+key+&#x27;&quot; aria-selected=&quot;&#x27;+(powerUI.business===key)+&#x27;&quot; aria-controls=&quot;power-business-panel&quot; tabindex=&quot;&#x27;+(powerUI.business===key?&#x27;0&#x27;:&#x27;-1&#x27;)+&#x27;&quot; data-power-business=&quot;&#x27;+key+&#x27;&quot;&gt;&lt;span class=&quot;pw-business-icon&quot; aria-hidden=&quot;true&quot;&gt;&lt;i data-lucide=&quot;&#x27;+businessIcons[key]+&#x27;&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span&gt;&#x27;+title+&#x27;&lt;/span&gt;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;div id=&quot;power-business-panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;power-business-tab-&#x27;+powerUI.business+&#x27;&quot;&gt;&lt;div class=&quot;pw-primary-tabs&quot; role=&quot;tablist&quot; aria-label=&quot;電力申請の表示切替&quot;&gt;&#x27;+tabs.map(([key,title])=&gt;&#x27;&lt;button type=&quot;button&quot; role=&quot;tab&quot; id=&quot;power-tab-&#x27;+key+&#x27;&quot; aria-controls=&quot;power-view&quot; aria-selected=&quot;&#x27;+(powerUI.tab===key)+&#x27;&quot; data-power-tab=&quot;&#x27;+key+&#x27;&quot;&gt;&#x27;+title+&#x27;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;div class=&quot;pw-demo-note&quot;&gt;&lt;strong&gt;架空データ・デモ基準日 &#x27;+powerDemoDate+&#x27;&lt;/strong&gt;&lt;span&gt;下書きと保存内容は画面内のみ。再読み込みで初期化。サーバー保存・実際の部門間共有・外部送信は行いません。&lt;/span&gt;&lt;/div&gt;&lt;p id=&quot;power-message&quot; role=&quot;status&quot;&gt;&#x27;+escapeText(showEdits?powerUI.message:&#x27;&#x27;)+&#x27;&lt;/p&gt;&#x27;+(showEdits?powerErrorHTML():&#x27;&#x27;)+&#x27;&lt;div id=&quot;power-view&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;power-tab-&#x27;+powerUI.tab+&#x27;&quot;&gt;&#x27;+powerBusinessBodyHTML()+&#x27;&lt;/div&gt;&lt;/div&gt;&#x27;;
  settingsRefreshIcons();powerRefreshLive();
+ const rail=q(&#x27;.pw-business-selector&#x27;),active=rail.querySelector(&#x27;[aria-selected=true]&#x27;);
+ const bounds=rail.getBoundingClientRect(),tabBounds=active.getBoundingClientRect();
+ if(tabBounds.right&gt;bounds.right)rail.scrollLeft+=tabBounds.right-bounds.right;
+ else if(tabBounds.left&lt;bounds.left)rail.scrollLeft+=tabBounds.left-bounds.left;
+}
+function powerBusinessTabKey(e){
+ const button=e.target.closest(&#x27;.pw-business-selector [data-power-business]&#x27;);
+ if(!button||![&#x27;ArrowLeft&#x27;,&#x27;ArrowRight&#x27;,&#x27;Home&#x27;,&#x27;End&#x27;].includes(e.key))return;
+ const buttons=qa(&#x27;.pw-business-selector [data-power-business]&#x27;),index=buttons.indexOf(button);
+ const next=e.key===&#x27;Home&#x27;?0:e.key===&#x27;End&#x27;?buttons.length-1:(index+(e.key===&#x27;ArrowRight&#x27;?1:-1)+buttons.length)%buttons.length;
+ e.preventDefault();powerUI.business=buttons[next].dataset.powerBusiness;renderPower();q(&#x27;#power-business-tab-&#x27;+powerUI.business).focus();
 }
 function powerRefreshLive(){
  qa(&#x27;[data-power-field]&#x27;).forEach(el=&gt;{
@@ -2766,6 +2786,7 @@ function renderLegalDashboard(){
  settingsRefreshIcons();
 }
 
+root.addEventListener(&#x27;keydown&#x27;,powerBusinessTabKey);
 root.addEventListener(&#x27;input&#x27;,e=&gt;{powerHandleInput(e);});
 root.addEventListener(&#x27;toggle&#x27;,e=&gt;{const el=e.target;if(el.matches(&#x27;details.pw-section&#x27;)){powerUI.open[el.dataset.project]||={};powerUI.open[el.dataset.project][el.dataset.powerSection]=el.open;}},true);
 root.addEventListener(&#x27;change&#x27;,e=&gt;{
