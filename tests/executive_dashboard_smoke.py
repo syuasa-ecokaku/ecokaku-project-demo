@@ -129,6 +129,7 @@ def run():
         old=browser.new_page(viewport={'width':1500,'height':1300});old.route(url,lambda route:route.fulfill(status=200,content_type='text/html',body=baseline));old.goto(url,wait_until='networkidle');of=old.frame_locator('#codex-visualization');page.reload(wait_until='networkidle')
         def state(frame,d,b,t):
             frame.locator('[data-page='+d+']').click();m=frame.locator('#'+d+'-workspace');m.locator('.du-business-tabs').get_by_role('tab',name=b,exact=True).click();m.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click()
+            if d=='legal' and b=='蓄電池' and t in ['データ入力','案件詳細']:return {'fields':m.locator('[data-dept-field]:not([data-dept-field=broker])').evaluate_all('(es)=>es.map(e=>[e.dataset.deptCase,e.dataset.deptField,e.value])')}
             if d=='realestate':
                 if t=='サマリー':return {'kpis':content_text(m.locator('.du-kpis')),'table':m.locator('[data-dept-summary-row]').evaluate_all('(es)=>es.map(e=>e.outerHTML)')}
                 if t=='データ入力':return {'table':m.locator('.du-bulk-table').inner_html()}

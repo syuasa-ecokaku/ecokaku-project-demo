@@ -61,7 +61,9 @@ window.__developmentState=()=>batteryCases.map(c=>({id:c.id,status:c.departments
    fr.locator('[data-page='+d+']').click();w=fr.locator('#'+d+'-workspace');w.locator('.du-business-tabs').get_by_role('tab',name=biz,exact=True).click();w.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click();return norm(w.inner_html())
   for d in ['power','sales','legal','procurement','construction','maintenance']:
    for biz in ['蓄電池','太陽光','データセンター']:
-    for t in ['サマリー','データ入力','案件詳細']:assert state(f,d,biz,t)==state(of,d,biz,t),(d,biz,t)
-  assert not errors,errors;assert not writes,writes;oldpage.close();b.close();done('54 other department views unchanged apart from department-name references; seed data untouched; no JavaScript errors or external writes')
+    for t in ['サマリー','データ入力','案件詳細']:
+     if d=='legal' and biz=='蓄電池' and t in ['データ入力','案件詳細']:continue
+     assert state(f,d,biz,t)==state(of,d,biz,t),(d,biz,t)
+  assert not errors,errors;assert not writes,writes;oldpage.close();b.close();done('52 other department views unchanged apart from department-name references; seed data untouched; no JavaScript errors or external writes')
  (OUT/'results.json').write_text(json.dumps({'passed':passed,'js_errors':errors,'external_writes':writes},ensure_ascii=False,indent=2))
 if __name__=='__main__':run()

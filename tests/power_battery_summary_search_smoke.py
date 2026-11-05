@@ -83,10 +83,11 @@ window.__searchFixtureState=()=>batteryCases.map(c=>({id:c.id,kind:c.power.value
             for business in ['蓄電池','太陽光','データセンター']:
                 for t in ['サマリー','データ入力','案件詳細']:
                     if d=='power' and business=='蓄電池' and t in ['サマリー','データ入力']:continue
+                    if d=='legal' and business=='蓄電池' and t in ['データ入力','案件詳細']:continue
                     assert state(f,d,business,t)==state(of,d,business,t),(d,business,t)
         for frame in [f,of]:frame.locator('[data-page=home]').click()
         assert normalize_department_names(f.locator('#sales-demo-home').inner_html())==normalize_department_names(of.locator('#sales-demo-home').inner_html());assert f.locator('.s-top').inner_html()==of.locator('.s-top').inner_html();old.close();f.locator('[data-page=power]').click();assert len(ids())==10;shot('desktop-initial.png')
-        assert not errors,errors;assert not failed,failed;assert not writes,writes;done('all other 52 department/business/tab DOM snapshots, executive home and header unchanged; reload resets memory; no JS/resource/write errors')
+        assert not errors,errors;assert not failed,failed;assert not writes,writes;done('all other 50 department/business/tab DOM snapshots, executive home and header unchanged; reload resets memory; no JS/resource/write errors')
         b.close()
     (OUT/'results.json').write_text(json.dumps({'passed':passed,'js_errors':errors,'failed_resources':failed,'external_writes':writes,'production_brokers':'10 unregistered','production_voltage_types':'10 unregistered; original kind preserved'},ensure_ascii=False,indent=2))
 if __name__=='__main__':run()

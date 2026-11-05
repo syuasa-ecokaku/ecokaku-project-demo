@@ -49,7 +49,8 @@ for(let i=0;i<batteryCases.length;i++){const d=batteryCases[i].power;d.values={k
    for business in ['蓄電池','太陽光','データセンター']:
     for t in ['サマリー','データ入力','案件詳細']:
      if (d,business,t)==('power','蓄電池','データ入力'):continue
+     if d=='legal' and business=='蓄電池' and t in ['データ入力','案件詳細']:continue
      assert state(f,d,business,t)==state(of,d,business,t),(d,business,t)
-  assert not errors,errors;old.close();b.close();done('all other 53 views unchanged, including summary stage counts and other businesses; no JavaScript errors')
+  assert not errors,errors;old.close();b.close();done('all other 51 views unchanged, including summary stage counts and other businesses; no JavaScript errors')
  (OUT/'results.json').write_text(json.dumps({'passed':passed,'js_errors':errors},ensure_ascii=False,indent=2))
 if __name__=='__main__':run()
