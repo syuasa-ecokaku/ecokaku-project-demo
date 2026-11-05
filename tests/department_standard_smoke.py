@@ -113,7 +113,7 @@ def run(department):
             mount.locator('[data-dept-filter=owner]').select_option('')
             if department!='maintenance':
                 count=int(mount.locator('[data-dept-metric=overdue] strong').inner_text());mount.locator('[data-dept-metric=overdue]').click();assert mount.locator('[data-dept-summary-row]').count()==count
-                mount.locator('[data-dept-metric=""]').click()
+                mount.locator('#dept-clear-'+department).click()
         mount.locator('[data-dept-open="'+pid+'"]').first.click()
         section('files').locator('input[type=file]').set_input_files({'name':department+'-sample.pdf','mimeType':'application/pdf','buffer':b'demo'})
         assert department+'-sample.pdf' in section('files').inner_text()
