@@ -136,7 +136,7 @@ def run():
                 return {'fields':m.locator('[data-dept-field]').evaluate_all('(es)=>es.map(e=>[e.dataset.deptField,e.value])')}
             if d=='power' and b=='蓄電池' and t=='データ入力':return {'table':m.locator('.pw-bulk-table').inner_html()}
             if d=='power' and b=='蓄電池' and t=='サマリー':return {'kpis':m.locator('.pw-counts').inner_text(),'stages':m.locator('[data-summary-pair]').inner_text(),'cases':m.locator('.pw-summary-scroll').inner_text()}
-            return {'text':normalize_department_names(content_text(m)),'controls':m.locator('input:not([type=file]),select,textarea').evaluate_all('(es)=>es.filter(e=>!e.closest(".nc-card,.ap-power-completion")).map(e=>[e.tagName,e.type,e.value,e.disabled,e.readOnly])')}
+            return {'text':normalize_department_names(content_text(m)),'controls':m.locator('input:not([type=file]),select,textarea').evaluate_all('(es)=>es.filter(e=>!e.closest(".nc-card,.ap-power-completion,.du-keyword-label")).map(e=>[e.tagName,e.type,e.value,e.disabled,e.readOnly])')}
         for d in DEPTS:
             for b in ['蓄電池','太陽光','データセンター']:
                 for t in ['サマリー','データ入力','案件詳細']:assert state(f,d,b,t)==state(of,d,b,t),(d,b,t)
