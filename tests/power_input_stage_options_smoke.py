@@ -3,7 +3,7 @@ from pathlib import Path
 import json,subprocess
 from playwright.sync_api import sync_playwright,expect
 from power_mock_smoke import server
-from notice_snapshot import normalize_department_names
+from notice_snapshot import normalize_department_names,snapshot_html
 from department_notices_smoke import fixture
 ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-power-input-stages-review')
 STAGES=['すべて','基本情報','接続検討','本申込','名義・設備変更','連系準備','受電・送電','商業運転','市場参入']
@@ -44,7 +44,7 @@ for(let i=0;i<batteryCases.length;i++){const d=batteryCases[i].power;d.values={k
    m.locator('#power-bulk-stage').select_option(stage);m.locator('.pw-toolbar').scroll_into_view_if_needed();p.screenshot(path=str(OUT/name))
   old=b.new_page(viewport={'width':1500,'height':1300});old.route(url,lambda r:r.fulfill(status=200,content_type='text/html',body=baseline));old.goto(url,wait_until='networkidle');of=old.frame_locator('#codex-visualization')
   def state(fr,d,business,t):
-   fr.locator('[data-page='+d+']').click();w=fr.locator('#'+d+'-workspace');w.locator('.du-business-tabs').get_by_role('tab',name=business,exact=True).click();w.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click();return normalize_department_names(w.inner_html())
+   fr.locator('[data-page='+d+']').click();w=fr.locator('#'+d+'-workspace');w.locator('.du-business-tabs').get_by_role('tab',name=business,exact=True).click();w.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click();return normalize_department_names(snapshot_html(w))
   for d in ['power','sales','legal','procurement','construction','maintenance']:
    for business in ['蓄電池','太陽光','データセンター']:
     for t in ['サマリー','データ入力','案件詳細']:

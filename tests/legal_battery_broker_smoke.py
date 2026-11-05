@@ -3,6 +3,7 @@ from pathlib import Path
 import json,subprocess
 from playwright.sync_api import sync_playwright,expect
 from power_mock_smoke import server
+from notice_snapshot import snapshot_html
 from department_notices_smoke import fixture,inner
 ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-legal-broker-review')
 def run():
@@ -42,7 +43,7 @@ window.__externalBrokerEdit=()=>batteryCaseMap['G-00003'].power.values.brokers=[
   p.goto(url,wait_until='networkidle');f.locator('[data-page=legal]').click();tab('bulk');group('rightsTransfer');p.screenshot(path=str(OUT/'rights-transfer-unset.png'));p.set_viewport_size({'width':800,'height':1100});group('common');assert m.locator('.du-bulk-table [data-dept-field=broker]').count()==10;p.screenshot(path=str(OUT/'narrow.png'));p.set_viewport_size({'width':1500,'height':1300})
   old=b.new_page(viewport={'width':1500,'height':1300});old.route(url,lambda r:r.fulfill(status=200,content_type='text/html',body=baseline));old.goto(url,wait_until='networkidle');of=old.frame_locator('#codex-visualization')
   def state(fr,d,biz,t):
-   fr.locator('[data-page='+d+']').click();w=fr.locator('#'+d+'-workspace');w.locator('.du-business-tabs').get_by_role('tab',name=biz,exact=True).click();w.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click();return w.inner_html()
+   fr.locator('[data-page='+d+']').click();w=fr.locator('#'+d+'-workspace');w.locator('.du-business-tabs').get_by_role('tab',name=biz,exact=True).click();w.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click();return snapshot_html(w)
   for d in ['realestate','power','sales','legal','procurement','construction','maintenance']:
    for biz in ['蓄電池','太陽光','データセンター']:
     for t in ['サマリー','データ入力','案件詳細']:

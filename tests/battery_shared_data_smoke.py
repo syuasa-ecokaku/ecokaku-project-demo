@@ -182,7 +182,7 @@ def run():
             if t=='detail':
                 select=mount.locator('#sales-detail-case,[data-dept-select]')
                 if select.count():select.select_option('P-00001' if d in ['sales','legal','construction','maintenance'] else 'R-00004' if d=='realestate' else 'P-00006')
-            return {'text':normalize_department_names(content_text(mount)),'controls':mount.locator('input:not([type=file]),select').evaluate_all('(els)=>els.filter(e=>!e.closest(".nc-card")).map(e=>({tag:e.tagName,type:e.type,value:e.value,disabled:e.disabled,options:e.tagName==="SELECT"?[...e.options].map(o=>[o.value,o.text]):undefined}))')}
+            return {'text':normalize_department_names(content_text(mount)),'controls':mount.locator('input:not([type=file]),select').evaluate_all('(els)=>els.filter(e=>!e.closest(".nc-card,.ap-power-completion")).map(e=>({tag:e.tagName,type:e.type,value:e.value,disabled:e.disabled,options:e.tagName==="SELECT"?[...e.options].map(o=>[o.value,o.text]):undefined}))')}
         for d in [d for d in DEPTS if d!='realestate']:
             for business in ['solar','datacenter']:
                 for t in ['summary','bulk','detail']:

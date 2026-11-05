@@ -3,6 +3,7 @@ from pathlib import Path
 import json,subprocess
 from playwright.sync_api import sync_playwright,expect
 from power_mock_smoke import server
+from notice_snapshot import snapshot_html
 from department_notices_smoke import fixture,inner
 ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-realestate-development-review')
 STATUS=['すべて','不動産','開発','調査前','調査中','交渉中','取得手続き中','取得済']
@@ -58,7 +59,7 @@ window.__developmentState=()=>batteryCases.map(c=>({id:c.id,status:c.departments
   oldpage=b.new_page(viewport={'width':1500,'height':1300});oldpage.route(url,lambda r:r.fulfill(status=200,content_type='text/html',body=baseline));oldpage.goto(url,wait_until='networkidle');of=oldpage.frame_locator('#codex-visualization')
   def norm(s):return s.replace('不動産開発','不動産').replace('不動産・開発','不動産')
   def state(fr,d,biz,t):
-   fr.locator('[data-page='+d+']').click();w=fr.locator('#'+d+'-workspace');w.locator('.du-business-tabs').get_by_role('tab',name=biz,exact=True).click();w.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click();return norm(w.inner_html())
+   fr.locator('[data-page='+d+']').click();w=fr.locator('#'+d+'-workspace');w.locator('.du-business-tabs').get_by_role('tab',name=biz,exact=True).click();w.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click();return norm(snapshot_html(w))
   for d in ['power','sales','legal','procurement','construction','maintenance']:
    for biz in ['蓄電池','太陽光','データセンター']:
     for t in ['サマリー','データ入力','案件詳細']:
