@@ -5,6 +5,7 @@ from html import escape
 import json,subprocess
 from playwright.sync_api import sync_playwright,expect
 from power_mock_smoke import server
+from notice_snapshot import content_text
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=Path('/tmp/ecokaku-summary-cards-review')
@@ -118,7 +119,7 @@ def run():
         # Solar/DC text, values and styles continue using their old markup.
         def snapshot(frame,d,business):
             m=nav(frame,d);m.locator('.du-business-tabs').get_by_role('tab',name=business,exact=True).click()
-            return {'text':m.inner_text(),'controls':m.locator('input:not([type=file]),select').evaluate_all('(es)=>es.map(e=>[e.type,e.value,e.disabled])'),'legacy_cards':m.locator('.du-overview,.sl-overview').inner_html() if m.locator('.du-overview,.sl-overview').count() else ''}
+            return {'text':content_text(m),'controls':m.locator('input:not([type=file]),select').evaluate_all('(es)=>es.filter(e=>!e.closest(".nc-card")).map(e=>[e.type,e.value,e.disabled])'),'legacy_cards':m.locator('.du-overview,.sl-overview').inner_html() if m.locator('.du-overview,.sl-overview').count() else ''}
         for d in DEPTS:
             for business in ['太陽光','データセンター']:assert snapshot(f,d,business)==snapshot(of,d,business),(d,business)
         done('all 14 non-battery summaries retain their text, input values and legacy card markup')

@@ -2318,6 +2318,15 @@ html&gt;body{padding:0}&lt;/style&gt;
 @media(max-width:1000px){#sales-demo-home #home-kpis{gap:10px}#sales-demo-home .home-kpi .d-kpivalue{font-size:24px}}
 @media(max-width:850px){#sales-demo-home .home-chart-row{grid-template-columns:minmax(0,1fr)}#sales-demo-home #home-kpis{grid-template-columns:minmax(0,1fr)}#sales-demo-home .home-list .s-scroll{overflow-x:auto}#sales-demo-home .home-list table{min-width:780px}}
 &lt;/style&gt;
+&lt;style&gt;/* Shared department notifications; never style the executive home. */
+.nc-card{width:100%;box-sizing:border-box;background:#fff;border:1px solid #d8e6f2;border-radius:12px;margin:18px 0;padding:18px 22px;color:#294b68;font-family:Meiryo,&#x27;メイリオ&#x27;,sans-serif}
+.nc-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}.nc-header h3,.nc-header h2{margin:0;color:#153f63;font-size:17px;font-weight:700}.nc-unread-count{display:inline-flex;align-items:center;justify-content:center;margin-left:8px;background:#eaf3ff;color:#1d4ed8;border-radius:20px;min-width:26px;height:24px;padding:0 6px;font-size:12px}
+.nc-detail{border:0;background:transparent;color:#1d6fba;font:inherit;font-size:12px;cursor:pointer;white-space:nowrap;padding:6px}.nc-detail:hover{text-decoration:underline}.nc-filters{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}.nc-categories{display:flex;flex-wrap:wrap;gap:5px}.nc-categories button{background:#fff;border:1px solid transparent;border-radius:5px;color:#637387;padding:7px 12px;font:inherit;font-size:12px;cursor:pointer}.nc-categories button[aria-pressed=true]{background:#eff6ff;border-color:#bdd9f7;color:#1d4ed8;font-weight:700}.nc-checks{display:flex;gap:14px;font-size:12px}.nc-checks label{display:flex;gap:5px;align-items:center}.nc-checks input{accent-color:#227acb;width:15px;height:15px}.nc-result-count{font-size:11px;color:#6d7f91;margin:10px 0 2px}
+.nc-row{padding:14px 0;background:#fff;border-bottom:1px solid #e5edf4;min-width:0}.nc-row:last-child{border-bottom:0}.nc-row-tags{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:8px}.nc-category,.nc-subtype,.nc-tag{display:inline-flex;align-items:center;border-radius:4px;font-size:11px;line-height:1.6;padding:2px 7px}.nc-company{color:#1d4ed8;background:#eff6ff}.nc-progress{color:#15803d;background:#f0fdf4}.nc-approval{color:#7e22ce;background:#faf5ff}.nc-subtype,.nc-reference{color:#657283;background:#f3f4f6}.nc-business{color:#788696;font-size:11px}.nc-state-tags{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}.nc-urgent{color:#b91c1c;background:#fef2f2}.nc-action{color:#b45309;background:#fff7ed}.nc-row-content{display:flex;align-items:flex-start;gap:10px}.nc-dot{height:7px;width:7px;flex:none;margin-top:8px;border-radius:50%;background:#2585d8}.nc-dot-read{background:transparent}.nc-row-main{flex:1;min-width:0}.nc-subject{display:block;border:0;background:transparent;padding:0;text-align:left;color:#25475f;font:inherit;font-size:13px;line-height:1.65;max-width:100%;overflow-wrap:anywhere;cursor:pointer}.nc-row[data-unread=true] .nc-subject{font-weight:700}.nc-subject:hover{color:#1d6fba;text-decoration:underline}.nc-case{font-size:12px;margin:4px 0;color:#49637a}.nc-meta{display:flex;flex-wrap:wrap;gap:6px 14px;color:#6d7f91;font-size:11px;line-height:1.7;margin-top:4px}.nc-empty{padding:26px 0;text-align:center;color:#6d7f91;font-size:13px}.nc-demo{font-size:11px;color:#6d7f91;margin-top:12px}.nc-demo summary{cursor:pointer}.nc-demo select{max-width:100%;height:32px;font:inherit;border:1px solid #cfdeec;background:#fff;border-radius:4px;margin:8px}.nc-demo p{margin:5px 0;line-height:1.7}
+.nc-dialog{box-sizing:border-box;width:min(940px,94vw);max-height:87vh;overflow:auto;background:#fff;border:1px solid #c8d9e9;border-radius:12px;padding:22px;color:#294b68;font-family:Meiryo,&#x27;メイリオ&#x27;,sans-serif}.nc-dialog::backdrop{background:#17395470}.nc-dialog .nc-header{position:sticky;top:-22px;background:#fff;padding:10px 0;z-index:1}.nc-detail-body h3{font-size:17px;overflow-wrap:anywhere}.nc-body{white-space:pre-wrap;line-height:1.9;font-size:13px;overflow-wrap:anywhere}.nc-detail-body p{font-size:12px;line-height:1.8}.nc-back{margin-bottom:14px}.nc-toasts{position:fixed;right:20px;bottom:20px;width:min(390px,calc(100vw - 40px));z-index:10010;display:grid;gap:8px}.nc-toast{background:#fff;border:1px solid #93bee8;border-left:4px solid #287dcc;border-radius:8px;box-shadow:0 4px 22px #15395428;padding:14px;display:grid;grid-template-columns:1fr 24px;gap:6px;color:#294b68;font-size:12px}.nc-toast strong{grid-column:1}.nc-toast button[data-notice-open]{border:0;background:#fff;text-align:left;font:inherit;color:#1d6fba;overflow-wrap:anywhere;grid-column:1;cursor:pointer}.nc-toast button[data-notice-dismiss]{grid-column:2;grid-row:1;border:0;background:#fff;cursor:pointer;font-size:18px;color:#657283}.nc-card button:focus-visible,.nc-dialog button:focus-visible,.nc-card select:focus-visible{outline:2px solid #287dcc;outline-offset:3px}
+@media(max-width:700px){.nc-card{padding:14px}.nc-row-content{flex-wrap:wrap}.nc-row-main{min-width:180px}.nc-row-content&gt;.nc-detail{margin-left:17px}.nc-state-tags{margin-left:0}.nc-header{gap:6px}.nc-categories button{padding:7px 8px}.nc-dialog{padding:14px}.nc-dialog .nc-header{top:-14px}}
+.nc-card .nc-checks,.nc-dialog .nc-checks{flex-shrink:0;white-space:nowrap}.nc-card .nc-checks label,.nc-dialog .nc-checks label{width:auto;flex:0 0 auto;white-space:nowrap}.nc-card .nc-checks input,.nc-dialog .nc-checks input{flex:0 0 15px;min-width:15px;max-width:15px;margin:0}
+&lt;/style&gt;
 &lt;section id=&quot;sales-demo-main&quot; data-department=&quot;sales&quot;&gt;&lt;div class=&quot;s-breadcrumb&quot;&gt;ダッシュボード ／ 営業&lt;/div&gt;&lt;div class=&quot;s-title&quot;&gt;&lt;div&gt;&lt;h2&gt;営業部門&lt;/h2&gt;&lt;p class=&quot;s-muted&quot;&gt;案件を把握し、データ入力と案件詳細で進める&lt;/p&gt;&lt;/div&gt;&lt;span class=&quot;s-pill&quot;&gt;営業担当の画面&lt;/span&gt;&lt;/div&gt;
 &lt;div id=&quot;sales-workspace&quot;&gt;&lt;/div&gt;
 &lt;section id=&quot;sales-legacy-detail&quot; class=&quot;s-box&quot; aria-label=&quot;選択した案件の詳細&quot; hidden&gt;&lt;div class=&quot;s-detailhead&quot;&gt;&lt;div&gt;&lt;div class=&quot;s-muted&quot; id=&quot;sales-demo-id&quot;&gt;&lt;/div&gt;&lt;div class=&quot;s-detailtitle&quot; id=&quot;sales-demo-title&quot;&gt;&lt;/div&gt;&lt;p class=&quot;s-muted&quot; id=&quot;sales-demo-customer&quot;&gt;&lt;/p&gt;&lt;/div&gt;&lt;span class=&quot;s-pill&quot; id=&quot;sales-demo-state&quot;&gt;&lt;/span&gt;&lt;/div&gt;
@@ -3226,10 +3235,186 @@ if(b.dataset.case!==undefined){salesOpen(projects[Number(b.dataset.case)].id,sec
 if(b.dataset.section){salesOpen(projects[selected].id,b.dataset.section);return;}
 if(b.id===&#x27;sales-demo-request&#x27;){q(&#x27;#sales-demo-form&#x27;).hidden=false;return;}
 if(b.id===&#x27;sales-demo-cancel&#x27;){q(&#x27;#sales-demo-form&#x27;).hidden=true;return;}
-if(b.id===&#x27;sales-demo-confirm&#x27;){if(!q(&#x27;#sales-demo-issue&#x27;).value||!q(&#x27;#sales-demo-due&#x27;).value)return;requests[projects[selected].id]=true;departmentSalesRecord(projects[selected]).events.unshift(departmentDemoDate+&#x27; ／ 請求指示の表示を画面内で更新&#x27;);render();q(&#x27;#sales-demo-message&#x27;).textContent=&#x27;請求指示の表示を変更しました。画面内の操作例です。&#x27;;return;}
+if(b.id===&#x27;sales-demo-confirm&#x27;){if(!q(&#x27;#sales-demo-issue&#x27;).value||!q(&#x27;#sales-demo-due&#x27;).value)return;const noticeBefore=noticeCenter.snapshot();requests[projects[selected].id]=true;noticeCenter.publishChanges(noticeBefore,&#x27;sales&#x27;);departmentSalesRecord(projects[selected]).events.unshift(departmentDemoDate+&#x27; ／ 請求指示の表示を画面内で更新&#x27;);render();q(&#x27;#sales-demo-message&#x27;).textContent=&#x27;請求指示の表示を変更しました。画面内の操作例です。&#x27;;return;}
 if(b.id===&#x27;sales-demo-save&#x27;){projects[selected].date=q(&#x27;#sales-demo-date&#x27;).value;q(&#x27;#sales-demo-message&#x27;).textContent=&#x27;契約日を画面内で更新しました。実データへの保存は行っていません。&#x27;;}
 });
 root.addEventListener(&#x27;keydown&#x27;,e=&gt;{if(e.key===&#x27;Escape&#x27;){q(&#x27;#account-menu&#x27;).hidden=true;q(&#x27;#account-toggle&#x27;).setAttribute(&#x27;aria-expanded&#x27;,&#x27;false&#x27;);}});
+// Shared, memory-only notification center. Settings templates are not authentication.
+const noticeCenter = (() =&gt; {
+ const categories={all:&#x27;すべて&#x27;,company:&#x27;全社共有&#x27;,progress:&#x27;プロジェクト進捗&#x27;,approval:&#x27;承認&#x27;};
+ const departments=homeDepartments.map(([id,label])=&gt;({id,label}));
+ const records=new Map(), objectIds=new WeakMap(), cases=new Map(), notices=[], eventIds=new Set(), views=new Map(), approvalRevisions=new Map();
+ let serial=0, transaction=0, currentUser=&#x27;dual&#x27;, dialogContext=null, dialogMode=&#x27;list&#x27;, selectedNotice=null, returnFocus=null;
+ const identities={
+  dual:{name:&#x27;兼務担当（全7部門）&#x27;,departments:departments.map(d=&gt;d.id),roles:[&#x27;担当者&#x27;,&#x27;関係者&#x27;],cases:&#x27;all&#x27;},
+  staff:{name:&#x27;一般担当（電力申請・一部案件）&#x27;,departments:[&#x27;power&#x27;],roles:[&#x27;担当者&#x27;],cases:[&#x27;battery:P-00002&#x27;,&#x27;battery:G-00004&#x27;,&#x27;battery:G-00005&#x27;]},
+  manager:{name:&#x27;部門責任者（営業・法務／承認担当）&#x27;,departments:[&#x27;sales&#x27;,&#x27;legal&#x27;],roles:[&#x27;責任者&#x27;,&#x27;承認者&#x27;],cases:[&#x27;battery:P-00001&#x27;,&#x27;battery:P-00002&#x27;,&#x27;battery:G-00008&#x27;,&#x27;battery:G-00010&#x27;,&#x27;solar:P-00001&#x27;]},
+  none:{name:&#x27;閲覧対象なし（空状態確認）&#x27;,departments:[],roles:[],cases:[]}
+ };
+ const idFor=o=&gt;{if(!objectIds.has(o))objectIds.set(o,&#x27;mock-internal-&#x27;+String(++serial).padStart(4,&#x27;0&#x27;));return objectIds.get(o);};
+ for(const business of Object.keys(departmentBusinesses))for(const r of homeBusinessCases(business)){
+  // An object registry supplies an immutable ID when the old fixture has only a display number.
+  const internalId=idFor(r.source), ref={internalId,business,source:r.source};cases.set(internalId,ref);records.set(business+&#x27;:&#x27;+r.id,ref);
+ }
+ const caseName=n=&gt;cases.get(n.caseId)?.source.name||&#x27;&#x27;;
+ const caseNumber=n=&gt;cases.get(n.caseId)?.source.id||n.caseNumber||&#x27;&#x27;;
+ const profile=()=&gt;identities[currentUser];
+ function permittedCase(ref){return !ref||profile().cases===&#x27;all&#x27;||profile().cases.some(key=&gt;records.get(key)?.internalId===ref.internalId);}
+ function context(d,b){return {department:d,business:b};}
+ function state(c){const key=c.department+&#x27;:&#x27;+c.business;if(!views.has(key))views.set(key,{category:&#x27;all&#x27;,unread:false,action:false});return views.get(key);}
+ function related(n){
+  const value=n.related?.read?.();
+  if(n.category===&#x27;approval&#x27;&amp;&amp;n.related?.key&amp;&amp;n.related.version!==(approvalRevisions.get(n.related.key)||0))return {action:false,label:&#x27;参考（過去の通知）&#x27;};
+  if(n.category===&#x27;approval&#x27;)return {action:value===&#x27;承認待ち&#x27;,label:value===&#x27;承認待ち&#x27;?&#x27;要承認&#x27;:[&#x27;差戻し&#x27;,&#x27;差し戻し&#x27;,&#x27;却下&#x27;].includes(value)?value:value===&#x27;承認済み&#x27;?&#x27;対応済み&#x27;:&#x27;参考&#x27;};
+  if(n.related?.actionWhile)return {action:n.related.actionWhile.includes(value),label:n.related.actionWhile.includes(value)?&#x27;要対応&#x27;:&#x27;対応済み&#x27;};
+  return {action:false,label:&#x27;参考&#x27;};
+ }
+ function visible(n,c){
+  const p=profile();
+  if(!p.departments.includes(c.department)||n.business!==&#x27;common&#x27;&amp;&amp;n.business!==c.business)return false;
+  if(n.targetDepartments.length&amp;&amp;!n.targetDepartments.includes(c.department))return false;
+  if((n.targetUsers.length||n.targetRoles.length)&amp;&amp;!n.targetUsers.includes(currentUser)&amp;&amp;!n.targetRoles.some(role=&gt;p.roles.includes(role)))return false;
+  if(n.caseId&amp;&amp;(!cases.has(n.caseId)||!permittedCase(cases.get(n.caseId))))return false;
+  return true;
+ }
+ const read=n=&gt;Boolean(n.readBy[currentUser]);
+ const scope=c=&gt;notices.filter(n=&gt;visible(n,c));
+ function list(c){const f=state(c);return scope(c).filter(n=&gt;(f.category===&#x27;all&#x27;||n.category===f.category)&amp;&amp;(!f.unread||!read(n))&amp;&amp;(!f.action||related(n).action)).sort((a,b)=&gt;rank(a)-rank(b)||(Date.parse(b.occurredAt)-Date.parse(a.occurredAt))||b.id.localeCompare(a.id));}
+ function rank(n){return n.priority===&#x27;urgent&#x27;?0:related(n).action?1:2;}
+ function formatDate(s){return s?new Date(s).toLocaleString(&#x27;sv-SE&#x27;,{timeZone:&#x27;Asia/Tokyo&#x27;,hour12:false}).slice(0,16):&#x27;&#x27;;}
+ const esc=escapeText;
+ function tags(n){const rel=related(n),near=rel.action&amp;&amp;n.due&amp;&amp;n.due&gt;=departmentDemoDate&amp;&amp;n.due&lt;=new Date(Date.parse(departmentDemoDate+&#x27;T00:00:00Z&#x27;)+3*86400000).toISOString().slice(0,10);return &#x27;&lt;span class=&quot;nc-category nc-&#x27;+n.category+&#x27;&quot;&gt;&#x27;+categories[n.category]+&#x27;&lt;/span&gt;&lt;span class=&quot;nc-subtype&quot;&gt;&#x27;+esc(n.subtype)+&#x27;&lt;/span&gt;&lt;span class=&quot;nc-business&quot;&gt;&#x27;+(n.business===&#x27;common&#x27;?&#x27;共通&#x27;:departmentBusinesses[n.business].label)+&#x27;&lt;/span&gt;&lt;span class=&quot;nc-state-tags&quot;&gt;&#x27;+(n.priority===&#x27;urgent&#x27;?&#x27;&lt;span class=&quot;nc-tag nc-urgent&quot;&gt;緊急&lt;/span&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;span class=&quot;nc-tag &#x27;+(rel.action?&#x27;nc-action&#x27;:&#x27;nc-reference&#x27;)+&#x27;&quot;&gt;&#x27;+esc(rel.label)+&#x27;&lt;/span&gt;&#x27;+(near?&#x27;&lt;span class=&quot;nc-tag nc-action&quot;&gt;期限間近&lt;/span&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;/span&gt;&#x27;;}
+ function row(n){const unread=!read(n);return &#x27;&lt;article class=&quot;nc-row&quot; data-notice-id=&quot;&#x27;+n.id+&#x27;&quot; data-notice-event=&quot;&#x27;+esc(n.eventId)+&#x27;&quot; data-unread=&quot;&#x27;+unread+&#x27;&quot;&gt;&lt;div class=&quot;nc-row-tags&quot;&gt;&#x27;+tags(n)+&#x27;&lt;/div&gt;&lt;div class=&quot;nc-row-content&quot;&gt;&lt;span class=&quot;nc-dot &#x27;+(unread?&#x27;&#x27;:&#x27;nc-dot-read&#x27;)+&#x27;&quot; aria-label=&quot;&#x27;+(unread?&#x27;未読&#x27;:&#x27;既読&#x27;)+&#x27;&quot;&gt;&lt;/span&gt;&lt;div class=&quot;nc-row-main&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;nc-subject&quot; data-notice-open=&quot;&#x27;+n.id+&#x27;&quot; title=&quot;&#x27;+esc(n.subject)+&#x27;&quot;&gt;&#x27;+esc(n.subject)+&#x27;&lt;/button&gt;&#x27;+(n.caseId?&#x27;&lt;p class=&quot;nc-case&quot;&gt;&#x27;+esc(caseNumber(n))+&#x27; ／ &#x27;+esc(caseName(n))+&#x27;&lt;/p&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;div class=&quot;nc-meta&quot;&gt;&lt;span&gt;発信：&#x27;+esc(departments.find(d=&gt;d.id===n.sourceDepartment)?.label||&#x27;全社&#x27;)+&#x27;&lt;/span&gt;&lt;time datetime=&quot;&#x27;+n.occurredAt+&#x27;&quot;&gt;&#x27;+formatDate(n.occurredAt)+&#x27;&lt;/time&gt;&#x27;+(n.due?&#x27;&lt;span&gt;対応期限 &#x27;+esc(n.due)+&#x27;&lt;/span&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;/div&gt;&lt;button type=&quot;button&quot; class=&quot;nc-detail&quot; data-notice-open=&quot;&#x27;+n.id+&#x27;&quot; aria-label=&quot;&#x27;+esc(n.subject)+&#x27;の詳細を開く&quot;&gt;詳細を開く →&lt;/button&gt;&lt;/div&gt;&lt;/article&gt;&#x27;;}
+ function filters(c){const f=state(c);return &#x27;&lt;div class=&quot;nc-filters&quot;&gt;&lt;div class=&quot;nc-categories&quot; role=&quot;group&quot; aria-label=&quot;お知らせカテゴリー&quot;&gt;&#x27;+Object.entries(categories).map(([id,label])=&gt;&#x27;&lt;button type=&quot;button&quot; data-notice-category=&quot;&#x27;+id+&#x27;&quot; aria-pressed=&quot;&#x27;+(f.category===id)+&#x27;&quot;&gt;&#x27;+label+&#x27;&lt;/button&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&lt;div class=&quot;nc-checks&quot;&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; data-notice-filter=&quot;unread&quot; &#x27;+(f.unread?&#x27;checked&#x27;:&#x27;&#x27;)+&#x27;&gt;未読&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; data-notice-filter=&quot;action&quot; &#x27;+(f.action?&#x27;checked&#x27;:&#x27;&#x27;)+&#x27;&gt;要対応&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&#x27;;}
+ function content(c,all=false){const found=list(c),rows=all?found:found.slice(0,5);return filters(c)+&#x27;&lt;p class=&quot;nc-result-count&quot;&gt;該当 &#x27;+found.length+&#x27;件 ／ 表示 &#x27;+rows.length+&#x27;件&lt;/p&gt;&lt;div class=&quot;nc-rows&quot;&gt;&#x27;+(rows.map(row).join(&#x27;&#x27;)||&#x27;&lt;p class=&quot;nc-empty&quot;&gt;条件に合うお知らせはありません。&lt;/p&gt;&#x27;)+&#x27;&lt;/div&gt;&#x27;;}
+ function cardHTML(c){const count=scope(c).filter(n=&gt;!read(n)).length;return &#x27;&lt;div class=&quot;nc-header&quot;&gt;&lt;h3&gt;お知らせ &lt;span class=&quot;nc-unread-count&quot; aria-label=&quot;未読&#x27;+count+&#x27;件&quot;&gt;&#x27;+count+&#x27;&lt;/span&gt;&lt;/h3&gt;&lt;button type=&quot;button&quot; class=&quot;nc-detail&quot; data-notice-all&gt;すべて見る →&lt;/button&gt;&lt;/div&gt;&#x27;+content(c)+&#x27;&lt;details class=&quot;nc-demo&quot;&gt;&lt;summary&gt;通知デモの閲覧者・保存範囲&lt;/summary&gt;&lt;label&gt;通知の閲覧者 &lt;select data-notice-user&gt;&#x27;+Object.entries(identities).map(([id,p])=&gt;&#x27;&lt;option value=&quot;&#x27;+id+&#x27;&quot; &#x27;+(id===currentUser?&#x27;selected&#x27;:&#x27;&#x27;)+&#x27;&gt;&#x27;+p.name+&#x27;&lt;/option&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/select&gt;&lt;/label&gt;&lt;p&gt;通知だけの表示判定です。実際の認証・権限制御ではありません。業務デモ基準日 &#x27;+departmentDemoDate+&#x27;。既読・通知は画面内のみで、再読み込みで初期化。実プッシュ・メール送信なし。&lt;/p&gt;&lt;/details&gt;&#x27;;}
+ function mount(d,b,tab){const m=q(&#x27;#&#x27;+d+&#x27;-workspace&#x27;);if(!m)return;m.querySelectorAll(&#x27;.nc-card&#x27;).forEach(e=&gt;e.remove());if(tab!==&#x27;summary&#x27;)return;const c=context(d,b),card=document.createElement(&#x27;section&#x27;);card.className=&#x27;nc-card&#x27;;card.dataset.noticeDepartment=d;card.dataset.noticeBusiness=b;card.setAttribute(&#x27;aria-label&#x27;,&#x27;お知らせ&#x27;);card.innerHTML=cardHTML(c);const kpi=m.querySelector(&#x27;.du-kpis,.sl-kpis,.pw-counts&#x27;);if(kpi)kpi.after(card);else{const placeholder=m.querySelector(&#x27;[data-power-placeholder]&#x27;);if(placeholder)placeholder.before(card);}}
+ function refresh(){qa(&#x27;.nc-card&#x27;).forEach(card=&gt;{const c=context(card.dataset.noticeDepartment,card.dataset.noticeBusiness);const expanded=card.querySelector(&#x27;.nc-demo&#x27;)?.open;card.innerHTML=cardHTML(c);if(expanded)card.querySelector(&#x27;.nc-demo&#x27;).open=true;});}
+ const dialog=document.createElement(&#x27;dialog&#x27;);dialog.className=&#x27;nc-dialog&#x27;;dialog.setAttribute(&#x27;aria-label&#x27;,&#x27;お知らせ一覧・詳細&#x27;);root.appendChild(dialog);
+ const toastBox=document.createElement(&#x27;div&#x27;);toastBox.className=&#x27;nc-toasts&#x27;;toastBox.setAttribute(&#x27;aria-live&#x27;,&#x27;polite&#x27;);toastBox.setAttribute(&#x27;aria-label&#x27;,&#x27;新着お知らせ&#x27;);root.appendChild(toastBox);
+ function renderDialog(){if(!dialogContext)return;const c=dialogContext,n=notices.find(n=&gt;n.id===selectedNotice&amp;&amp;visible(n,c));dialog.dataset.noticeDepartment=c.department;dialog.dataset.noticeBusiness=c.business;
+  let body=content(c,true),title=&#x27;お知らせ一覧&#x27;;
+  if(dialogMode===&#x27;detail&#x27;){
+   title=&#x27;お知らせ詳細&#x27;;body=n?&#x27;&lt;article class=&quot;nc-detail-body&quot; data-notice-id=&quot;&#x27;+n.id+&#x27;&quot;&gt;&lt;div class=&quot;nc-row-tags&quot;&gt;&#x27;+tags(n)+&#x27;&lt;/div&gt;&lt;h3&gt;&#x27;+esc(n.subject)+&#x27;&lt;/h3&gt;&lt;p class=&quot;nc-body&quot;&gt;&#x27;+esc(n.body)+&#x27;&lt;/p&gt;&#x27;+(n.caseId?&#x27;&lt;p&gt;&#x27;+esc(caseNumber(n))+&#x27; ／ &#x27;+esc(caseName(n))+&#x27;&lt;/p&gt;&#x27;:&#x27;&#x27;)+&#x27;&lt;p class=&quot;nc-meta&quot;&gt;発信：&#x27;+esc(departments.find(d=&gt;d.id===n.sourceDepartment)?.label||&#x27;全社&#x27;)+&#x27; ／ &#x27;+formatDate(n.occurredAt)+(n.due?&#x27; ／ 対応期限 &#x27;+n.due:&#x27;&#x27;)+&#x27;&lt;/p&gt;&lt;p&gt;既読と業務の対応済みは別です。この画面から承認・対応を完了することはできません。&lt;/p&gt;&#x27;+(n.destination?&#x27;&lt;button type=&quot;button&quot; class=&quot;s-btn s-primary&quot; data-notice-navigate=&quot;&#x27;+n.id+&#x27;&quot;&gt;関連画面を開く&lt;/button&gt;&#x27;:&#x27;&lt;p&gt;本文の参照のみです。&lt;/p&gt;&#x27;)+&#x27;&lt;p class=&quot;nc-destination-message&quot; role=&quot;status&quot;&gt;&lt;/p&gt;&lt;/article&gt;&#x27;:&#x27;&lt;p&gt;このお知らせは現在の閲覧対象に含まれていません。&lt;/p&gt;&#x27;;
+  }
+  dialog.innerHTML=&#x27;&lt;div class=&quot;nc-header&quot;&gt;&lt;h2&gt;&#x27;+title+&#x27;&lt;/h2&gt;&lt;button type=&quot;button&quot; class=&quot;nc-detail&quot; data-notice-close&gt;閉じる&lt;/button&gt;&lt;/div&gt;&#x27;+(dialogMode===&#x27;detail&#x27;?&#x27;&lt;button type=&quot;button&quot; class=&quot;nc-detail nc-back&quot; data-notice-back&gt;一覧に戻る&lt;/button&gt;&#x27;:&#x27;&#x27;)+body;
+ }
+ function open(c,id){dialogContext=c;dialogMode=id?&#x27;detail&#x27;:&#x27;list&#x27;;selectedNotice=id||null;if(id){const n=notices.find(x=&gt;x.id===id&amp;&amp;visible(x,c));if(!n)return;n.readBy[currentUser]=true;refresh();}renderDialog();if(!dialog.open){returnFocus=document.activeElement;dialog.showModal();}dialog.querySelector(&#x27;[data-notice-close]&#x27;).focus();}
+ function close(){dialog.close();dialogContext=null;const fallback=qa(&#x27;.nc-card&#x27;).find(x=&gt;!x.closest(&#x27;[hidden]&#x27;))?.querySelector(&#x27;[data-notice-all]&#x27;);(returnFocus?.isConnected?returnFocus:fallback)?.focus();}
+ dialog.addEventListener(&#x27;cancel&#x27;,e=&gt;{e.preventDefault();close();});
+ function navigate(n,c){
+  if(!visible(n,c))return;
+  const target=n.destination,ref=cases.get(n.caseId),unavailable=()=&gt;{dialog.querySelector(&#x27;.nc-destination-message&#x27;).textContent=&#x27;遷移先は未実装、または現在は未登録です。通知本文を参照してください。&#x27;;};
+  if(!target||target.unimplemented||!ref||!permittedCase(ref)){unavailable();return;}
+  const r=homeBusinessCases(ref.business).find(x=&gt;x.source===ref.source);if(!r){unavailable();return;}
+  if(target.department===&#x27;power&#x27;){
+   const i=powerProjects.findIndex(p=&gt;p.id===ref.source.id);if(ref.business!==&#x27;battery&#x27;||i&lt;0){unavailable();return;}
+   close();powerOpenDetail(i,target.section||&#x27;basic&#x27;,target.field||&#x27;&#x27;);showPage(&#x27;power&#x27;);return;
+  }
+  if(target.department===&#x27;sales&#x27;&amp;&amp;ref.business===&#x27;solar&#x27;&amp;&amp;projects.includes(ref.source)){close();salesOpen(ref.source.id,target.section||&#x27;contract&#x27;);showPage(&#x27;sales&#x27;);return;}
+  const d=target.department;if(!departmentConfigs[d]||!homeStoredRecord(d,r)){unavailable();return;}
+  close();const u=departmentState(d);u.business=ref.business;if(d===&#x27;sales&#x27;){salesUI.business=ref.business;salesUI.tab=&#x27;detail&#x27;;}departmentOpen(d,ref.source.id);
+  if(target.group&amp;&amp;departmentConfig(d).groups[target.group]){u.group=target.group;u.groups[ref.business]=target.group;departmentRender(d);}
+  showPage(d);const input=target.field&amp;&amp;q(&#x27;#&#x27;+d+&#x27;-workspace [data-dept-field=&quot;&#x27;+target.field+&#x27;&quot;]&#x27;);if(input)input.focus();
+ }
+ function pushEligible(n){return n.category===&#x27;company&#x27;?[&#x27;urgent&#x27;,&#x27;important&#x27;].includes(n.priority):n.category===&#x27;progress&#x27;?[&#x27;工程完了&#x27;,&#x27;ステータス変更&#x27;,&#x27;引き継ぎ&#x27;,&#x27;日程変更&#x27;].includes(n.subtype):true;}
+ function emit(data,initial=false){
+  if(eventIds.has(data.eventId))return null;eventIds.add(data.eventId);
+  const n={id:&#x27;notice-&#x27;+String(notices.length+1).padStart(4,&#x27;0&#x27;),targetDepartments:[],targetUsers:[],targetRoles:[],business:&#x27;common&#x27;,caseId:null,caseNumber:&#x27;&#x27;,priority:&#x27;normal&#x27;,due:&#x27;&#x27;,occurredAt:new Date().toISOString(),readBy:{},...data};notices.push(n);
+  if(!initial&amp;&amp;pushEligible(n)){
+   const c=departments.map(d=&gt;context(d.id,n.business===&#x27;common&#x27;?&#x27;battery&#x27;:n.business)).find(c=&gt;visible(n,c));
+   if(c){const toast=document.createElement(&#x27;div&#x27;);toast.className=&#x27;nc-toast&#x27;;toast.dataset.noticeDepartment=c.department;toast.dataset.noticeBusiness=c.business;toast.innerHTML=&#x27;&lt;strong&gt;新着お知らせ&lt;/strong&gt;&lt;button type=&quot;button&quot; data-notice-open=&quot;&#x27;+n.id+&#x27;&quot;&gt;&#x27;+esc(n.subject)+&#x27;&lt;/button&gt;&lt;button type=&quot;button&quot; data-notice-dismiss aria-label=&quot;新着通知を閉じる&quot;&gt;×&lt;/button&gt;&#x27;;toastBox.appendChild(toast);while(toastBox.children.length&gt;3)toastBox.firstElementChild.remove();setTimeout(()=&gt;toast.remove(),12000);}
+  }
+  return n;
+ }
+ function eventDescriptor(ref,d,k,label,read,semantic,kind=&#x27;progress&#x27;,extra={}){return {ref,department:d,key:k,label,read,value:read()??&#x27;&#x27;,semantic:ref.internalId+&#x27;:&#x27;+semantic,kind,...extra};}
+ const importantDates=new Set([&#x27;due&#x27;,&#x27;meeting&#x27;,&#x27;proposal&#x27;,&#x27;contractExpected&#x27;,&#x27;acquiredDate&#x27;,&#x27;orderDate&#x27;,&#x27;delivery&#x27;,&#x27;deliveryActual&#x27;,&#x27;paymentDue&#x27;,&#x27;startPlanned&#x27;,&#x27;startActual&#x27;,&#x27;completion&#x27;,&#x27;completionActual&#x27;,&#x27;inspection&#x27;,&#x27;inspectionActual&#x27;,&#x27;handover&#x27;,&#x27;handoverActual&#x27;,&#x27;nextInspection&#x27;,&#x27;inspectionDate&#x27;,&#x27;saleDate&#x27;,&#x27;landDate&#x27;,&#x27;maintenanceDate&#x27;,&#x27;date&#x27;]);
+ function snapshot(){const result=new Map(),add=w=&gt;{if(!result.has(w.semantic))result.set(w.semantic,w);};
+  for(const ref of cases.values()){
+   const r=homeBusinessCases(ref.business).find(r=&gt;r.source===ref.source);if(!r)continue;
+   if(ref.business===&#x27;battery&#x27;){
+    for(const [d] of homeDepartments.filter(([d])=&gt;d!==&#x27;power&#x27;)){
+     const rec={id:ref.source.id,businessScope:&#x27;battery&#x27;},fields=Object.assign({},...Object.values(batteryDepartmentDefinitions[d].groups).map(g=&gt;g.fields));
+     for(const [k,f] of Object.entries(fields)){
+      if(d===&#x27;legal&#x27;&amp;&amp;k===&#x27;status&#x27;)continue;
+      if(!/Approval$|State$|Review$/.test(k)&amp;&amp;![&#x27;status&#x27;,&#x27;paymentStatus&#x27;].includes(k)&amp;&amp;!importantDates.has(k))continue;
+      const contract=k.match(/^(sale|land|maintenance)(Approval|State|Date|Review)$/),dept=contract?&#x27;legal&#x27;:d,semantic=contract?&#x27;contract:&#x27;+batteryContract(ref.source,contract[1]).id+&#x27;:&#x27;+contract[2]:[&#x27;completion&#x27;,&#x27;inspection&#x27;,&#x27;handover&#x27;].includes(k)?&#x27;construction:&#x27;+k:d+&#x27;:&#x27;+k;
+      const kind=/Approval$/.test(k)?&#x27;approval&#x27;:&#x27;progress&#x27;;
+      add(eventDescriptor(ref,dept,k,f.label,()=&gt;batteryRead(d,rec,k),semantic,kind,{group:contract?contract[1]:null,contractId:contract?batteryContract(ref.source,contract[1]).id:null}));
+     }
+    }
+    const keys=[&#x27;commonStatus&#x27;,&#x27;24&#x27;,&#x27;29&#x27;,&#x27;42&#x27;,&#x27;46&#x27;,&#x27;51&#x27;,&#x27;69&#x27;,&#x27;80&#x27;,&#x27;89&#x27;,&#x27;supplyStart&#x27;,&#x27;95&#x27;,&#x27;99&#x27;,&#x27;103&#x27;,&#x27;102&#x27;,&#x27;28&#x27;,&#x27;47&#x27;,&#x27;54&#x27;,&#x27;agreedForecast&#x27;,&#x27;88&#x27;,&#x27;supplyDesired&#x27;];
+    for(const key of keys)add(eventDescriptor(ref,&#x27;power&#x27;,key,powerAllFields[key]?.label||key,()=&gt;ref.source.power.values[key]||&#x27;&#x27;,&#x27;power:&#x27;+key));
+    add(eventDescriptor(ref,&#x27;power&#x27;,&#x27;round&#x27;,&#x27;申請回&#x27;,()=&gt;ref.source.power.round,&#x27;power:round&#x27;));
+   }else{
+    if(projects.includes(ref.source)){
+     add(eventDescriptor(ref,&#x27;sales&#x27;,&#x27;stage&#x27;,&#x27;営業ステータス&#x27;,()=&gt;ref.source.stage,&#x27;sales:stage&#x27;));
+     for(const key of [&#x27;completion&#x27;,&#x27;inspection&#x27;,&#x27;handover&#x27;,&#x27;date&#x27;])add(eventDescriptor(ref,key===&#x27;date&#x27;?&#x27;sales&#x27;:&#x27;construction&#x27;,key,salesFields[key]?.label||key,()=&gt;ref.source[key]===&#x27;未設定&#x27;?&#x27;&#x27;:ref.source[key],&#x27;shared:&#x27;+key));
+     add(eventDescriptor(ref,&#x27;sales&#x27;,&#x27;invoiceRequest&#x27;,&#x27;請求指示&#x27;,()=&gt;Boolean(requests[ref.source.id]),&#x27;sales:invoiceRequest&#x27;));
+    }
+    for(const [d] of homeDepartments.filter(([d])=&gt;![&#x27;power&#x27;,&#x27;sales&#x27;,&#x27;legal&#x27;].includes(d))){const rec=homeStoredRecord(d,r);if(!rec)continue;const fields=Object.assign({},...Object.values(departmentConfigs[d].groups).map(g=&gt;g.fields));for(const [key,f] of Object.entries(fields)){if(key!==&#x27;status&#x27;&amp;&amp;!importantDates.has(key))continue;const semantic=projects.includes(ref.source)&amp;&amp;[&#x27;completion&#x27;,&#x27;inspection&#x27;,&#x27;handover&#x27;].includes(key)?&#x27;shared:&#x27;+key:d+&#x27;:&#x27;+key;add(eventDescriptor(ref,d,key,f.label,()=&gt;departmentValue(d,homeStoredRecord(d,r),key),semantic));}}
+   }
+  }
+  return result;
+ }
+ function destination(w){return {department:w.department,section:w.department===&#x27;power&#x27;?powerSectionFor(w.key):&#x27;contract&#x27;,group:w.group,field:w.key};}
+ function publishChanges(before,origin){const after=snapshot(),changed=[...after.values()].filter(w=&gt;before.has(w.semantic)&amp;&amp;String(before.get(w.semantic).value)!==String(w.value));if(!changed.length)return;
+  const approvedCases=new Set(changed.filter(w=&gt;w.kind===&#x27;approval&#x27;).map(w=&gt;w.ref.internalId)),roundCases=new Set(changed.filter(w=&gt;w.key===&#x27;round&#x27;).map(w=&gt;w.ref.internalId));const event=&#x27;saved-&#x27;+(++transaction);
+  for(const w of changed){if(w.kind!==&#x27;approval&#x27;&amp;&amp;approvedCases.has(w.ref.internalId)||w.key!==&#x27;round&#x27;&amp;&amp;roundCases.has(w.ref.internalId))continue;
+   const prev=before.get(w.semantic).value,approval=w.kind===&#x27;approval&#x27;,request=approval&amp;&amp;w.value===&#x27;承認待ち&#x27;,completed=[&#x27;完了&#x27;,&#x27;取得済み&#x27;,&#x27;引渡し済み&#x27;,&#x27;締結済み&#x27;,&#x27;支払済み&#x27;].includes(w.value)||!prev&amp;&amp;[&#x27;acquiredDate&#x27;,&#x27;deliveryActual&#x27;,&#x27;startActual&#x27;,&#x27;completionActual&#x27;,&#x27;inspectionActual&#x27;,&#x27;handoverActual&#x27;,&#x27;29&#x27;,&#x27;46&#x27;,&#x27;51&#x27;,&#x27;89&#x27;,&#x27;supplyStart&#x27;,&#x27;95&#x27;,&#x27;99&#x27;,&#x27;103&#x27;,&#x27;102&#x27;].includes(w.key)&amp;&amp;w.value;
+   const handover=completed&amp;&amp;w.key===&#x27;handoverActual&#x27;,subtype=approval?(request?&#x27;承認依頼&#x27;:[&#x27;差戻し&#x27;,&#x27;差し戻し&#x27;].includes(w.value)?&#x27;差し戻し&#x27;:w.value===&#x27;却下&#x27;?&#x27;却下&#x27;:&#x27;承認結果&#x27;):handover?&#x27;引き継ぎ&#x27;:completed?&#x27;工程完了&#x27;:importantDates.has(w.key)||[&#x27;28&#x27;,&#x27;47&#x27;,&#x27;54&#x27;,&#x27;agreedForecast&#x27;,&#x27;88&#x27;,&#x27;supplyDesired&#x27;].includes(w.key)?&#x27;日程変更&#x27;:&#x27;ステータス変更&#x27;;
+   if(approval)approvalRevisions.set(w.contractId,(approvalRevisions.get(w.contractId)||0)+1);
+   const nextDepartment={acquiredDate:&#x27;legal&#x27;,handoverActual:&#x27;maintenance&#x27;,&#x27;51&#x27;:&#x27;procurement&#x27;,&#x27;89&#x27;:&#x27;construction&#x27;}[w.key],targets=[...new Set([w.department,origin,...(nextDepartment?[nextDepartment]:[]),...(approval?[&#x27;legal&#x27;,&#x27;sales&#x27;]:[])])];
+   emit({eventId:event+&#x27;:&#x27;+w.semantic,category:approval?&#x27;approval&#x27;:&#x27;progress&#x27;,subtype,subject:w.label+&#x27;：&#x27;+(prev||&#x27;未登録&#x27;)+&#x27; → &#x27;+(w.value||&#x27;未登録&#x27;),body:&#x27;既存の&#x27;+(departments.find(d=&gt;d.id===origin)?.label||origin)+&#x27;画面で確定した変更です。\n&#x27;+w.label+&#x27;：&#x27;+(prev||&#x27;未登録&#x27;)+&#x27; → &#x27;+(w.value||&#x27;未登録&#x27;)+(approval?&#x27;\n契約単位の承認状態入力に連動した通知です。正式な段階承認フローは未実装です。&#x27;:&#x27;&#x27;),business:w.ref.business,caseId:w.ref.internalId,caseNumber:w.ref.source.id,sourceDepartment:origin,targetDepartments:targets,targetRoles:request?[&#x27;承認者&#x27;]:[&#x27;担当者&#x27;,&#x27;責任者&#x27;,&#x27;関係者&#x27;,&#x27;承認者&#x27;],due:w.ref.business===&#x27;battery&#x27;?w.ref.source.departments[w.department]?.due||w.ref.source.power.values.commonDue||&#x27;&#x27;:&#x27;&#x27;,destination:destination(w),related:approval?{read:w.read,key:w.contractId,version:approvalRevisions.get(w.contractId)}:null});
+  }
+  refresh();
+ }
+ function transactionAround(run,origin){const before=snapshot(),result=run();publishChanges(before,origin);return result;}
+ function seed(){
+  for(const [i,subtype] of [&#x27;重要連絡&#x27;,&#x27;ルール変更&#x27;,&#x27;システム案内&#x27;].entries())emit({eventId:&#x27;demo-company-&#x27;+i,category:&#x27;company&#x27;,subtype,subject:[&#x27;デモ環境の情報取り扱いについて&#x27;,&#x27;デモ画面内の保存範囲について&#x27;,&#x27;通知カードの操作案内&#x27;][i],body:[&#x27;表示される案件情報は架空のデモデータです。実際の顧客情報や機密情報を入力しないでください。&#x27;,&#x27;保存・既読状態は画面内だけです。再読み込みすると初期データに戻ります。&#x27;,&#x27;カテゴリー・未読・要対応で絞り込みできます。詳細を読んでも業務の対応状態は完了しません。&#x27;][i],business:&#x27;common&#x27;,sourceDepartment:&#x27;company&#x27;,priority:i===0?&#x27;important&#x27;:&#x27;normal&#x27;,occurredAt:&#x27;2026-11-04T0&#x27;+(9-i)+&#x27;:00:00+09:00&#x27;},true);
+  for(const d of departments){
+   const candidates=batteryCases.filter(c=&gt;d.id===&#x27;power&#x27;?Boolean(c.power.values[&#x27;24&#x27;]):![&#x27;対象工程前&#x27;,&#x27;調査前&#x27;,&#x27;未着手&#x27;].includes(d.id===&#x27;legal&#x27;?batteryLegalStatus(c):c.departments[d.id].status));
+   for(const [i,c] of candidates.slice(0,3).entries()){
+    const ref=records.get(&#x27;battery:&#x27;+c.id),readStatus=()=&gt;d.id===&#x27;power&#x27;?c.power.values.commonStatus:d.id===&#x27;legal&#x27;?batteryLegalStatus(c):c.departments[d.id].status,status=readStatus(),due=d.id===&#x27;power&#x27;?c.power.values.commonDue:c.departments[d.id].due;
+    emit({eventId:&#x27;demo-&#x27;+d.id+&#x27;-&#x27;+ref.internalId,category:&#x27;progress&#x27;,subtype:&#x27;ステータス変更&#x27;,subject:d.label+&#x27;の登録済み状況：&#x27;+status,body:&#x27;初期サンプルの保存済み情報を共有する通知です。今回新しく工程が完了したことを意味しません。現在の登録状況：&#x27;+status,business:&#x27;battery&#x27;,caseId:ref.internalId,caseNumber:c.id,sourceDepartment:d.id,targetDepartments:[d.id],targetRoles:[&#x27;担当者&#x27;,&#x27;責任者&#x27;,&#x27;関係者&#x27;],due,priority:d.id===&#x27;maintenance&#x27;&amp;&amp;c.departments.maintenance.priority===&#x27;緊急&#x27;?&#x27;urgent&#x27;:&#x27;normal&#x27;,related:due?{read:readStatus,actionWhile:[&#x27;調査中&#x27;,&#x27;交渉中&#x27;,&#x27;取得手続中&#x27;,&#x27;商談中&#x27;,&#x27;提案中&#x27;,&#x27;契約予定&#x27;,&#x27;契約締結&#x27;,&#x27;契約確認中&#x27;,&#x27;承認待ち&#x27;,&#x27;発注準備&#x27;,&#x27;納品待ち&#x27;,&#x27;未着工&#x27;,&#x27;施工中&#x27;,&#x27;保守準備&#x27;,&#x27;対応中&#x27;,&#x27;確認待ち&#x27;]}:null,destination:{department:d.id,section:d.id===&#x27;power&#x27;?&#x27;basic&#x27;:&#x27;contract&#x27;},occurredAt:&#x27;2026-11-04T&#x27;+String(15-i).padStart(2,&#x27;0&#x27;)+&#x27;:00:00+09:00&#x27;},true);
+   }
+  }
+  for(const id of [&#x27;P-00001&#x27;,&#x27;G-00010&#x27;]){const ref=records.get(&#x27;battery:&#x27;+id),contract=batteryContract(ref.source,&#x27;sale&#x27;),pending=contract.approval===&#x27;承認待ち&#x27;;emit({eventId:&#x27;demo-approval-&#x27;+contract.id,category:&#x27;approval&#x27;,subtype:pending?&#x27;承認依頼&#x27;:&#x27;承認結果&#x27;,subject:pending?&#x27;設備販売契約の承認状態を確認してください&#x27;:&#x27;設備販売契約：登録済みの承認結果&#x27;,body:&#x27;契約ID &#x27;+contract.id+&#x27; の現在の承認状態：&#x27;+contract.approval+&#x27;。既存デモの契約状態に基づくサンプルです。案件の正式化承認とは別情報です。段階承認・権限付き承認処理は未実装です。&#x27;,business:&#x27;battery&#x27;,caseId:ref.internalId,caseNumber:id,sourceDepartment:&#x27;legal&#x27;,targetDepartments:[&#x27;legal&#x27;,&#x27;sales&#x27;],targetRoles:pending?[&#x27;承認者&#x27;]:[&#x27;担当者&#x27;,&#x27;責任者&#x27;,&#x27;関係者&#x27;,&#x27;承認者&#x27;],due:pending?ref.source.departments.legal.due:&#x27;&#x27;,related:{read:()=&gt;contract.approval,key:contract.id,version:0},destination:{department:&#x27;legal&#x27;,group:&#x27;sale&#x27;,field:&#x27;saleApproval&#x27;},occurredAt:&#x27;2026-11-04T16:00:00+09:00&#x27;},true);}
+  emit({eventId:&#x27;demo-restricted-user&#x27;,category:&#x27;company&#x27;,subtype:&#x27;重要連絡&#x27;,subject:&#x27;責任者本人宛ての限定サンプル&#x27;,body:&#x27;対象利用者以外には件名・本文・件数も表示しません。&#x27;,targetDepartments:[&#x27;legal&#x27;],targetUsers:[&#x27;manager&#x27;],priority:&#x27;important&#x27;,occurredAt:&#x27;2026-11-04T17:00:00+09:00&#x27;},true);
+ }
+ function eventContext(el){const host=el.closest(&#x27;[data-notice-department]&#x27;);return host?context(host.dataset.noticeDepartment,host.dataset.noticeBusiness):null;}
+ root.addEventListener(&#x27;click&#x27;,e=&gt;{const b=e.target.closest(&#x27;button&#x27;);if(!b)return;const c=eventContext(b);if(!c)return;
+  if(b.hasAttribute(&#x27;data-notice-category&#x27;)){state(c).category=b.dataset.noticeCategory;refresh();if(dialog.open)renderDialog();const parent=dialog.open?dialog:qa(&#x27;.nc-card&#x27;).find(x=&gt;x.dataset.noticeDepartment===c.department&amp;&amp;x.dataset.noticeBusiness===c.business);parent?.querySelector(&#x27;[data-notice-category=&#x27;+state(c).category+&#x27;]&#x27;)?.focus();}
+  if(b.hasAttribute(&#x27;data-notice-all&#x27;))open(c);
+  if(b.dataset.noticeOpen)open(c,b.dataset.noticeOpen);
+  if(b.hasAttribute(&#x27;data-notice-close&#x27;))close();
+  if(b.hasAttribute(&#x27;data-notice-back&#x27;)){dialogMode=&#x27;list&#x27;;selectedNotice=null;renderDialog();}
+  if(b.dataset.noticeNavigate){const n=notices.find(n=&gt;n.id===b.dataset.noticeNavigate);if(n)navigate(n,c);}
+  if(b.hasAttribute(&#x27;data-notice-dismiss&#x27;))b.closest(&#x27;.nc-toast&#x27;).remove();
+ });
+ root.addEventListener(&#x27;change&#x27;,e=&gt;{const el=e.target,c=eventContext(el);if(!c)return;
+  if(el.dataset.noticeFilter){state(c)[el.dataset.noticeFilter]=el.checked;refresh();if(dialog.open)renderDialog();const host=dialog.open?dialog:qa(&#x27;.nc-card&#x27;).find(x=&gt;x.dataset.noticeDepartment===c.department&amp;&amp;x.dataset.noticeBusiness===c.business);host?.querySelector(&#x27;[data-notice-filter=&#x27;+el.dataset.noticeFilter+&#x27;]&#x27;)?.focus();}
+  if(el.hasAttribute(&#x27;data-notice-user&#x27;)&amp;&amp;Object.hasOwn(identities,el.value)){currentUser=el.value;toastBox.replaceChildren();if(dialog.open)close();refresh();}
+ });
+ seed();
+ return {mount,refresh,snapshot,publishChanges,transactionAround,emit};
+})();
+// Connect only committed operations; render/navigation never emits events.
+const noticeOriginalDepartmentSave=departmentSave;
+departmentSave=function(d){return noticeCenter.transactionAround(()=&gt;noticeOriginalDepartmentSave(d),d);};
+const noticeOriginalSalesSave=salesSave;
+salesSave=function(){return noticeCenter.transactionAround(()=&gt;noticeOriginalSalesSave(),&#x27;sales&#x27;);};
+const noticeOriginalPowerSave=powerSave;
+powerSave=function(ids){return noticeCenter.transactionAround(()=&gt;noticeOriginalPowerSave(ids),&#x27;power&#x27;);};
+const noticeOriginalPowerClick=powerHandleClick;
+powerHandleClick=function(b){return b.dataset.powerAction===&#x27;reconnectConfirm&#x27;?noticeCenter.transactionAround(()=&gt;noticeOriginalPowerClick(b),&#x27;power&#x27;):noticeOriginalPowerClick(b);};
+const noticeOriginalDepartmentRender=departmentRender;
+departmentRender=function(d){const result=noticeOriginalDepartmentRender(d),u=departmentState(d);noticeCenter.mount(d,u.business,u.tab);return result;};
+const noticeOriginalSalesRender=render;
+render=function(){const result=noticeOriginalSalesRender();noticeCenter.mount(&#x27;sales&#x27;,salesUI.business,salesUI.tab);return result;};
+const noticeOriginalPowerRender=renderPower;
+renderPower=function(){const result=noticeOriginalPowerRender();noticeCenter.mount(&#x27;power&#x27;,powerUI.business,powerUI.tab);return result;};
+
 render();showPage(&#x27;home&#x27;);settingsRefreshIcons();
 })();
 &lt;/script&gt;

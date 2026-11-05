@@ -4,6 +4,7 @@ from html.parser import HTMLParser
 import json,subprocess
 from playwright.sync_api import sync_playwright,expect
 from power_mock_smoke import server
+from notice_snapshot import content_text
 
 ROOT=Path(__file__).resolve().parents[1]
 OUTPUT=Path('/tmp/ecokaku-battery-shared-review')
@@ -181,7 +182,7 @@ def run():
             if t=='detail':
                 select=mount.locator('#sales-detail-case,[data-dept-select]')
                 if select.count():select.select_option('P-00001' if d in ['sales','legal','construction','maintenance'] else 'R-00004' if d=='realestate' else 'P-00006')
-            return {'text':mount.inner_text(),'controls':mount.locator('input:not([type=file]),select').evaluate_all('(els)=>els.map(e=>({tag:e.tagName,type:e.type,value:e.value,disabled:e.disabled,options:e.tagName==="SELECT"?[...e.options].map(o=>[o.value,o.text]):undefined}))')}
+            return {'text':content_text(mount),'controls':mount.locator('input:not([type=file]),select').evaluate_all('(els)=>els.filter(e=>!e.closest(".nc-card")).map(e=>({tag:e.tagName,type:e.type,value:e.value,disabled:e.disabled,options:e.tagName==="SELECT"?[...e.options].map(o=>[o.value,o.text]):undefined}))')}
         for d in DEPTS:
             for business in ['solar','datacenter']:
                 for t in ['summary','bulk','detail']:
