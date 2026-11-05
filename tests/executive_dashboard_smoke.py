@@ -129,6 +129,7 @@ def run():
         old=browser.new_page(viewport={'width':1500,'height':1300});old.route(url,lambda route:route.fulfill(status=200,content_type='text/html',body=baseline));old.goto(url,wait_until='networkidle');of=old.frame_locator('#codex-visualization');page.reload(wait_until='networkidle')
         def state(frame,d,b,t):
             frame.locator('[data-page='+d+']').click();m=frame.locator('#'+d+'-workspace');m.locator('.du-business-tabs').get_by_role('tab',name=b,exact=True).click();m.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click()
+            if d=='power' and b=='蓄電池' and t=='サマリー':return {'kpis':m.locator('.pw-counts').inner_text(),'stages':m.locator('[data-summary-pair]').inner_text(),'cases':m.locator('.pw-summary-scroll').inner_text()}
             return {'text':content_text(m),'controls':m.locator('input:not([type=file]),select,textarea').evaluate_all('(es)=>es.filter(e=>!e.closest(".nc-card")).map(e=>[e.tagName,e.type,e.value,e.disabled,e.readOnly])')}
         for d in DEPTS:
             for b in ['蓄電池','太陽光','データセンター']:

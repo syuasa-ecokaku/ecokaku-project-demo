@@ -109,7 +109,7 @@ def run():
         assert f.locator('[data-power-summary-row]').first.get_attribute('data-power-summary-row') == 'P-00001'
         done('all count cards match filtered list and progress ordering')
         f.locator('[data-power-filter=owner]').select_option('申請担当A')
-        f.locator('[data-power-filter=kind]').select_option('蓄電池')
+        f.locator('#power-summary-equipment').select_option('missing')
         f.locator('[data-power-filter=sort]').select_option('deadline')
         f.locator('#power-search').fill('G-00003')
         f.locator('#power-search').press('Tab')
@@ -119,7 +119,7 @@ def run():
         expect(f.locator('#power-section-basic')).to_have_attribute('open', '')
         f.locator('[data-power-tab=summary]').last.click()
         expect(f.locator('[data-power-filter=owner]')).to_have_value('申請担当A')
-        expect(f.locator('[data-power-filter=kind]')).to_have_value('蓄電池')
+        expect(f.locator('#power-summary-equipment')).to_have_value('missing')
         expect(f.locator('[data-power-filter=sort]')).to_have_value('deadline')
         assert f.locator('[data-power-summary-row]').count() == 1
         clear_filters()
