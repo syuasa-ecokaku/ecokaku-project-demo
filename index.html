@@ -2036,10 +2036,15 @@ html&gt;body{padding:0}&lt;/style&gt;
 #ecokaku-departments-ui .s-top{background:linear-gradient(110deg,#65d5f4 0%,#00a9e8 46%,#1467b9 100%);border-bottom:3px solid #1398d6}
 #ecokaku-departments-ui .s-companyname,#ecokaku-departments-ui .s-brand,#ecokaku-departments-ui .s-brandcaption{color:#123553}
 #ecokaku-departments-ui .s-logoplate{box-shadow:0 2px 10px #12528a18}
-#ecokaku-departments-ui .s-demo{background:#174f78;color:#fff;border-color:#94d6f4}
-#ecokaku-departments-ui .s-accountbutton{background:#154e7c;color:#fff;border-color:#82c4eb}
-#ecokaku-departments-ui .s-accountbutton:hover{background:#103f65}
-#ecokaku-departments-ui .s-accountcopy small{color:#e0f2fc}
+/* Shared header trigger only; dropdown content retains its own colors. */
+#ecokaku-departments-ui .s-demo{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.4)}
+#ecokaku-departments-ui #account-toggle{background:#eaf6ff;color:#123b5d;border:1px solid #b9dfff;box-shadow:none}
+#ecokaku-departments-ui #account-toggle:hover,#ecokaku-departments-ui #account-toggle[aria-expanded=true]{background:#d8edfc}
+#ecokaku-departments-ui #account-display-name{color:#123b5d;font-weight:700}
+#ecokaku-departments-ui #account-toggle .s-accountcopy small{color:#526b80}
+#ecokaku-departments-ui #account-toggle&gt;span[aria-hidden=true]{color:#123b5d}
+#ecokaku-departments-ui #account-toggle .s-avatar{outline:1px solid #fff;outline-offset:0}
+#ecokaku-departments-ui #account-toggle:focus-visible{outline:2px solid #123b5d;outline-offset:3px;box-shadow:0 0 0 3px #fff}
 
 #ecokaku-departments-ui .s-main{background:#f6f9fd;padding:24px}
 #ecokaku-departments-ui .d-welcome{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 0 24px}
