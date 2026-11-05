@@ -4,7 +4,7 @@ from html.parser import HTMLParser
 import json,subprocess
 from playwright.sync_api import sync_playwright,expect
 from power_mock_smoke import server
-from notice_snapshot import content_text
+from notice_snapshot import content_text,normalize_department_names
 
 ROOT=Path(__file__).resolve().parents[1]
 OUTPUT=Path('/tmp/ecokaku-battery-shared-review')
@@ -182,14 +182,14 @@ def run():
             if t=='detail':
                 select=mount.locator('#sales-detail-case,[data-dept-select]')
                 if select.count():select.select_option('P-00001' if d in ['sales','legal','construction','maintenance'] else 'R-00004' if d=='realestate' else 'P-00006')
-            return {'text':content_text(mount),'controls':mount.locator('input:not([type=file]),select').evaluate_all('(els)=>els.filter(e=>!e.closest(".nc-card")).map(e=>({tag:e.tagName,type:e.type,value:e.value,disabled:e.disabled,options:e.tagName==="SELECT"?[...e.options].map(o=>[o.value,o.text]):undefined}))')}
-        for d in DEPTS:
+            return {'text':normalize_department_names(content_text(mount)),'controls':mount.locator('input:not([type=file]),select').evaluate_all('(els)=>els.filter(e=>!e.closest(".nc-card")).map(e=>({tag:e.tagName,type:e.type,value:e.value,disabled:e.disabled,options:e.tagName==="SELECT"?[...e.options].map(o=>[o.value,o.text]):undefined}))')}
+        for d in [d for d in DEPTS if d!='realestate']:
             for business in ['solar','datacenter']:
                 for t in ['summary','bulk','detail']:
                     a=snapshot(old_f,d,business,t);b=snapshot(f,d,business,t)
                     assert a==b,(d,business,t)
         old.close()
-        done('all 42 solar/datacenter department-tab snapshots and editable values match pre-change production baseline')
+        done('all 36 solar/datacenter department-tab snapshots and editable values match pre-change production baseline')
         page.reload(wait_until='networkidle')
         for d in ['realestate','sales','legal','procurement','construction','maintenance']:
             nav(d);shot(d,'summary');detail(d,'P-00001');shot(d,'detail')

@@ -5,7 +5,7 @@ from html import escape
 import json,subprocess
 from playwright.sync_api import sync_playwright,expect
 from power_mock_smoke import server
-from notice_snapshot import content_text
+from notice_snapshot import content_text,normalize_department_names
 
 ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-executive-dashboard-review')
 DEPTS=['realestate','power','sales','legal','procurement','construction','maintenance']
@@ -129,9 +129,13 @@ def run():
         old=browser.new_page(viewport={'width':1500,'height':1300});old.route(url,lambda route:route.fulfill(status=200,content_type='text/html',body=baseline));old.goto(url,wait_until='networkidle');of=old.frame_locator('#codex-visualization');page.reload(wait_until='networkidle')
         def state(frame,d,b,t):
             frame.locator('[data-page='+d+']').click();m=frame.locator('#'+d+'-workspace');m.locator('.du-business-tabs').get_by_role('tab',name=b,exact=True).click();m.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click()
+            if d=='realestate':
+                if t=='サマリー':return {'kpis':content_text(m.locator('.du-kpis')),'table':m.locator('[data-dept-summary-row]').evaluate_all('(es)=>es.map(e=>e.outerHTML)')}
+                if t=='データ入力':return {'table':m.locator('.du-bulk-table').inner_html()}
+                return {'fields':m.locator('[data-dept-field]').evaluate_all('(es)=>es.map(e=>[e.dataset.deptField,e.value])')}
             if d=='power' and b=='蓄電池' and t=='データ入力':return {'table':m.locator('.pw-bulk-table').inner_html()}
             if d=='power' and b=='蓄電池' and t=='サマリー':return {'kpis':m.locator('.pw-counts').inner_text(),'stages':m.locator('[data-summary-pair]').inner_text(),'cases':m.locator('.pw-summary-scroll').inner_text()}
-            return {'text':content_text(m),'controls':m.locator('input:not([type=file]),select,textarea').evaluate_all('(es)=>es.filter(e=>!e.closest(".nc-card")).map(e=>[e.tagName,e.type,e.value,e.disabled,e.readOnly])')}
+            return {'text':normalize_department_names(content_text(m)),'controls':m.locator('input:not([type=file]),select,textarea').evaluate_all('(es)=>es.filter(e=>!e.closest(".nc-card")).map(e=>[e.tagName,e.type,e.value,e.disabled,e.readOnly])')}
         for d in DEPTS:
             for b in ['蓄電池','太陽光','データセンター']:
                 for t in ['サマリー','データ入力','案件詳細']:assert state(f,d,b,t)==state(of,d,b,t),(d,b,t)

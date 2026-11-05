@@ -22,7 +22,7 @@ def run():
         def bulk(d,business='battery'):
             nav(d);f.locator('#'+d+'-workspace [data-dept-business='+business+']').click();f.locator('#'+d+'-workspace .du-work-tabs [data-dept-tab=bulk]').click()
         def done(s):passed.append(s);print('PASS',s,flush=True)
-        assert f.locator('.s-sidebar [data-page]').all_text_contents()[1:8]==['01不動産','02電力申請','03営業','04法務','05購買','06工事','07メンテナンス']
+        assert f.locator('.s-sidebar [data-page]').all_text_contents()[1:8]==['01不動産開発','02電力申請','03営業','04法務','05購買','06工事','07メンテナンス']
         for d in ['realestate','power','sales','legal','procurement','construction','maintenance']:
             nav(d);workspace=f.locator('#'+d+'-workspace')
             assert workspace.locator('.du-business-tabs button').all_text_contents()==['蓄電池','太陽光','データセンター']

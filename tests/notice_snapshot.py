@@ -5,3 +5,8 @@ def content_text(locator):
       try { cards.forEach(c=>c.style.setProperty('display','none','important')); return e.innerText; }
       finally { cards.forEach((c,i)=>previous[i]===null?c.removeAttribute('style'):c.setAttribute('style',previous[i])); }
     }""")
+
+
+def normalize_department_names(text):
+    """Ignore the intentional real-estate department display-name migration in legacy snapshots."""
+    return text.replace("不動産開発", "不動産").replace("不動産・開発", "不動産")

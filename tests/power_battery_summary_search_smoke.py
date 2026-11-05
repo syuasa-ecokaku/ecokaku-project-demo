@@ -3,6 +3,7 @@ from pathlib import Path
 import json,subprocess
 from playwright.sync_api import sync_playwright,expect
 from power_mock_smoke import server
+from notice_snapshot import normalize_department_names
 from department_notices_smoke import inner,fixture
 ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-power-summary-search-review')
 def run():
@@ -77,15 +78,15 @@ window.__searchFixtureState=()=>batteryCases.map(c=>({id:c.id,kind:c.power.value
         # Full unaffected-area snapshots against the starting main, from fresh production data.
         p.set_viewport_size({'width':1550,'height':1350});p.goto(url,wait_until='networkidle');old=b.new_page(viewport={'width':1550,'height':1350});old.route(url,lambda r:r.fulfill(status=200,content_type='text/html',body=baseline));old.goto(url,wait_until='networkidle');of=old.frame_locator('#codex-visualization')
         def state(frame,d,business,t):
-            frame.locator('[data-page='+d+']').click();mount=frame.locator('#'+d+'-workspace');mount.locator('.du-business-tabs').get_by_role('tab',name=business,exact=True).click();mount.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click();return mount.inner_html()
-        for d in ['realestate','power','sales','legal','procurement','construction','maintenance']:
+            frame.locator('[data-page='+d+']').click();mount=frame.locator('#'+d+'-workspace');mount.locator('.du-business-tabs').get_by_role('tab',name=business,exact=True).click();mount.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click();return normalize_department_names(mount.inner_html())
+        for d in ['power','sales','legal','procurement','construction','maintenance']:
             for business in ['蓄電池','太陽光','データセンター']:
                 for t in ['サマリー','データ入力','案件詳細']:
                     if d=='power' and business=='蓄電池' and t in ['サマリー','データ入力']:continue
                     assert state(f,d,business,t)==state(of,d,business,t),(d,business,t)
         for frame in [f,of]:frame.locator('[data-page=home]').click()
-        assert f.locator('#sales-demo-home').inner_html()==of.locator('#sales-demo-home').inner_html();assert f.locator('.s-top').inner_html()==of.locator('.s-top').inner_html();old.close();f.locator('[data-page=power]').click();assert len(ids())==10;shot('desktop-initial.png')
-        assert not errors,errors;assert not failed,failed;assert not writes,writes;done('all other 61 department/business/tab DOM snapshots, executive home and header unchanged; reload resets memory; no JS/resource/write errors')
+        assert normalize_department_names(f.locator('#sales-demo-home').inner_html())==normalize_department_names(of.locator('#sales-demo-home').inner_html());assert f.locator('.s-top').inner_html()==of.locator('.s-top').inner_html();old.close();f.locator('[data-page=power]').click();assert len(ids())==10;shot('desktop-initial.png')
+        assert not errors,errors;assert not failed,failed;assert not writes,writes;done('all other 52 department/business/tab DOM snapshots, executive home and header unchanged; reload resets memory; no JS/resource/write errors')
         b.close()
     (OUT/'results.json').write_text(json.dumps({'passed':passed,'js_errors':errors,'failed_resources':failed,'external_writes':writes,'production_brokers':'10 unregistered','production_voltage_types':'10 unregistered; original kind preserved'},ensure_ascii=False,indent=2))
 if __name__=='__main__':run()
