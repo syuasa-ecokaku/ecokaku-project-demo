@@ -20,7 +20,7 @@ def fixture(raw,injection):
     a=raw.index('data-srcdoc="')+len('data-srcdoc="');b=raw.index('"',a);return raw[:a]+escape(s,quote=True)+raw[b:]
 def run():
     OUT.mkdir(exist_ok=True);passed=[];errors=[];failed=[];writes=[];inventory=[]
-    raw=(ROOT/'index.html').read_text();baseline=subprocess.check_output(['git','show','fc355f8:index.html'],cwd=ROOT,text=True)
+    raw=(ROOT/'index.html').read_text();baseline=subprocess.check_output(['git','show','f816545:index.html'],cwd=ROOT,text=True)
     for var in ['batteryCaseSeedData','batteryDepartmentDefinitions']:
         parse=lambda text:json.JSONDecoder().raw_decode(inner(text).split('const '+var+'=',1)[1])[0]
         assert parse(raw)==parse(baseline)
@@ -33,7 +33,7 @@ def run():
         def tab(m,name):m.locator('.du-work-tabs').get_by_role('tab',name=name,exact=True).click()
         def values(m,selector=CARDS):return m.locator(selector).evaluate_all('''es=>es.map(e=>({label:(e.querySelector('.dk-label')||e.querySelector(':scope>span')||e.querySelector('.d-kpihead>span')).textContent,value:(e.querySelector('strong')||e.querySelector('.d-kpivalue')).textContent,note:((e.querySelector(':scope>small')||e.querySelector(':scope>.d-kpi-note'))?.textContent||''),disabled:Boolean(e.disabled)}))''')
         def list_state(m):return {'ids':m.locator('[data-power-summary-row],[data-dept-summary-row],#sales-demo-cases tr').evaluate_all('(es)=>es.map(e=>e.dataset.powerSummaryRow||e.dataset.deptSummaryRow||e.querySelector("button").dataset.salesOpen)'),'selected':m.locator(CARDS).evaluate_all('(es)=>es.map(e=>[e.getAttribute("aria-pressed"),e.classList.contains("is-selected")])')}
-        def notice(m):return m.locator('.nc-card').inner_html()
+        def notice(m):return m.locator('.nc-card').evaluate('e=>({ids:[...e.querySelectorAll(".nc-row")].map(x=>[x.dataset.noticeId,x.dataset.unread]),unread:e.querySelector(".nc-unread-count").textContent,category:e.querySelector("[data-notice-category][aria-pressed=true]").dataset.noticeCategory,filters:[...e.querySelectorAll("[data-notice-filter]")].map(x=>[x.dataset.noticeFilter,x.checked])})')
         def shot(name,m):m.locator(CARDS).first.scroll_into_view_if_needed();p.screenshot(path=str(OUT/(name+'.png')))
         colors={'blue':('rgb(29, 78, 216)','rgb(239, 246, 255)'),'purple':('rgb(126, 34, 206)','rgb(250, 245, 255)'),'green':('rgb(21, 128, 61)','rgb(240, 253, 244)'),'orange':('rgb(194, 65, 12)','rgb(255, 247, 237)'),'red':('rgb(185, 28, 28)','rgb(254, 242, 242)'),'muted':('rgb(100, 116, 139)','rgb(241, 245, 249)')}
         for d in DEPTS:
@@ -76,7 +76,7 @@ def run():
         for business in ['蓄電池','太陽光','データセンター']:
             m=nav(f,'maintenance');om=nav(of,'maintenance');biz(m,business);biz(om,business)
             for t in ['サマリー','データ入力','案件詳細']:
-                tab(m,t);tab(om,t);assert m.inner_html()==om.inner_html(),(business,t);assert not m.locator('.dk-card,.dk-row').count()
+                tab(m,t);tab(om,t);assert m.evaluate('(e)=>{const c=e.cloneNode(true);c.querySelectorAll(".nc-card").forEach(n=>n.remove());return c.innerHTML;}')==om.evaluate('(e)=>{const c=e.cloneNode(true);c.querySelectorAll(".nc-card").forEach(n=>n.remove());return c.innerHTML;}'),(business,t);assert not m.locator('.dk-card,.dk-row').count()
         for business in ['蓄電池','太陽光','データセンター']:
             for fr in [of,f]:fr.locator('[data-page=home]').click();fr.locator('#sales-demo-home .home-business-tabs').get_by_role('tab',name=business,exact=True).click()
             for key in ['active','grid','money']:

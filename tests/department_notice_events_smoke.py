@@ -14,17 +14,17 @@ def run():
         def all(m):m.locator('[data-notice-all]').click();return dialog.locator('.nc-row')
         def close():dialog.locator('[data-notice-close]').click()
         def profile(m,user):
-            panel=m.locator('.nc-demo');panel.locator('summary').click();panel.locator('[data-notice-user]').select_option(user)
+            m.locator('[data-notice-info]').click();dialog.locator('[data-notice-user]').select_option(user)
         def save(m):m.locator('[data-dept-action=save]').first.click()
         m=nav('construction');tab(m,'データ入力');m.locator('[data-dept-group]').select_option('business')
         for key,value in [('completionActual','2026-11-20'),('inspectionActual','2026-11-25'),('handoverActual','2026-11-30')]:m.locator('[data-dept-row=P-00002] [data-dept-field='+key+']').fill(value)
         save(m);assert f.locator('.nc-toast').count()==3
-        m=nav('maintenance');rr=all(m).filter(has_text='引渡実績日');assert rr.count()==1 and '引き継ぎ' in rr.inner_text()
+        m=nav('maintenance');rr=all(m).filter(has_text='引渡実績日');assert rr.count()==1 and rr.get_attribute('data-notice-subtype')=='引き継ぎ'
         rr.locator('[data-notice-open]').first.click();dialog.locator('[data-notice-navigate]').click();expect(f.locator('#construction-workspace [data-dept-select]')).to_have_value('P-00002')
         done('actual construction handover notifies maintenance and opens the source case; separate completion events stay distinct')
-        p.reload(wait_until='networkidle');m=nav('legal');profile(m,'manager');tab(m,'データ入力');m.locator('[data-dept-group]').select_option('sale');field=m.locator('[data-dept-row=G-00010] [data-dept-field=saleApproval]');field.select_option('差戻し');save(m);tab(m,'サマリー');rr=all(m).filter(has_text='承認待ち → 差戻し');assert rr.count()==1 and '差し戻し' in rr.inner_text();close()
-        tab(m,'データ入力');field.select_option('承認待ち');save(m);tab(m,'サマリー');rr=all(m);requests=rr.filter(has_text='承認依頼');assert requests.count()==2
-        assert requests.filter(has_text='要承認').count()==1 and requests.filter(has_text='参考（過去の通知）').count()==1
+        p.reload(wait_until='networkidle');m=nav('legal');profile(m,'manager');tab(m,'データ入力');m.locator('[data-dept-group]').select_option('sale');field=m.locator('[data-dept-row=G-00010] [data-dept-field=saleApproval]');field.select_option('差戻し');save(m);tab(m,'サマリー');rr=all(m).filter(has_text='承認待ち → 差戻し');assert rr.count()==1 and rr.get_attribute('data-notice-subtype')=='差し戻し';close()
+        tab(m,'データ入力');field.select_option('承認待ち');save(m);tab(m,'サマリー');rr=all(m);requests=dialog.locator('.nc-row[data-notice-subtype=承認依頼]');assert requests.count()==2
+        assert requests.filter(has_text='要承認').count()==1 and requests.filter(has_text='参考').count()==1
         close();tab(m,'データ入力');save(m);tab(m,'サマリー');assert all(m).filter(has_text='差戻し → 承認待ち').count()==1;close()
         profile(m,'dual');assert not m.locator('.nc-card .nc-row').filter(has_text='差戻し → 承認待ち').count()
         done('contract return and resubmission notify once; only the current request stays actionable; requests target the demo approver role')
