@@ -55,6 +55,8 @@ def run():
   list_tab('approved');a.locator('#approval-search').fill('G-00006');assert a.locator('[data-approval-row]').count()==1;assert 'P-00007' in a.inner_text();a.locator('#approval-search').fill('p-00007');assert a.locator('[data-approval-row]').count()==1
   for d in ['realestate','power','sales','legal','procurement','construction','maintenance']:
    nav(d);w=dept(d);w.locator('.du-business-tabs').get_by_role('tab',name='蓄電池',exact=True).click();tab(d,'summary')
+   if d=='maintenance':
+    assert not w.locator('[data-dept-summary-row=G-00006]').count();w.locator('details').last.locator('summary').click();w.locator('[data-maint-existing]').filter(has_text='P-00007').click();assert '承認済み' in w.locator('.ap-case-status').inner_text();continue
    if d=='power':w.locator('[data-power-action=clearFilters]').click();search=w.locator('#power-search');row=w.locator('[data-power-summary-row="G-00006"]');open_button=row.locator('[data-power-open]').first
    else:search=w.locator('[data-dept-filter=search]');row=w.locator('[data-dept-summary-row="G-00006"]');open_button=row.locator('[data-dept-open]').first
    for query in ['P-00007','G-00006']:

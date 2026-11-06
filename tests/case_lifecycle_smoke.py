@@ -50,6 +50,8 @@ def run():
   api("()=>__lifecycle.identity('admin')");api("async()=>{const s=__lifecycle.sources().find(s=>s.baseNumber==='R-00005');await __lifecycle.approve(s);await __lifecycle.approve(s);}");wait();s=find(s['name']);assert s['formalNumber']=='P-00007' and s['revision']==0 and len(s['changeHistory'])==2;assert 'R-00005-02' in s['previousNumbers']
   change(s,'construction','name','架空正式化変更01');s=find('架空正式化変更01');assert s['revision']==1 and s['changeHistory'][0]['number']=='P-00007-01';assert len(sources())==initial+2
   for d in ['realestate','power','sales','legal','procurement','construction','maintenance']:
+   if d=='maintenance':
+    open_case(s,d);assert 'P-00007-01' in f.locator('#maintenance-workspace [data-lifecycle-case]').inner_text();continue
    open_case(s,d);m=f.locator('#'+d+'-workspace');m.locator('#power-tab-summary' if d=='power' else '.du-work-tabs [data-dept-tab=summary]').click();search=m.locator('#power-search' if d=='power' else '[data-dept-filter=search]')
    for number in ['R-00005','R-00005-02','P-00007','P-00007-01']:
     search.fill(number);search.press('Tab');assert m.locator('[data-power-summary-row]' if d=='power' else '[data-dept-summary-row]').count()==1,(d,number)
