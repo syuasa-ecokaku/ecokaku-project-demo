@@ -34,7 +34,7 @@ def run():
    for k,v in {'name':name,'party':'架空契約先（デモ）','signedDate':'2026-11-06','startDate':start,'endDate':end,'deadline':'2026-11-15','amount':'120000','scope':'設備の基本点検（デモ）','billingCycle':'月次'}.items():f.locator('#lc-mt-'+k).fill(v)
    f.locator('#mt-contractState').select_option(state);f.locator('#mt-autoRenew').select_option('あり');f.locator('#lc-files').set_input_files({'name':name+'.pdf','mimeType':'application/pdf','buffer':b'demo'});submit();expect(dlg).not_to_be_visible()
   def record(number,kind):
-   open(number);m.locator('[data-maint-record-add]').click();f.locator('#mt-kind').select_option(kind);f.locator('#mt-operator').select_option(label='保守デモ担当A');f.locator('#lc-mt-description').fill('架空の点検・不具合記録')
+   open(number);m.locator('[data-maint-record-add]').click();f.locator('#mt-kind').select_option(kind);f.locator('#mt-recordEntry').select_option('completed' if kind=='incident' else 'planned');f.locator('#mt-operator').select_option(label='保守デモ担当A');f.locator('#lc-mt-description').fill('架空の点検・不具合記録')
    if kind=='inspection':f.locator('#lc-mt-plannedDate').fill('2026-11-18')
    else:f.locator('#lc-mt-actualDate').fill(api('()=>__maint.today()'));f.locator('#lc-mt-result').fill('架空の復旧確認済み')
    f.locator('#lc-files').set_input_files({'name':'点検報告（デモ）.pdf','mimeType':'application/pdf','buffer':b'demo'});submit();expect(dlg).not_to_be_visible()
