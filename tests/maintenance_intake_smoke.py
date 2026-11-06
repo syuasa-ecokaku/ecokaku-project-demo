@@ -29,7 +29,7 @@ def run():
    f.locator('#mt-operator').select_option(label='保守デモ担当A')
   def contract(number,name,renew=False,state='締結済み',start='2026-11-06',end='2026-11-30'):
    open(number)
-   if renew:m.locator('.mt-contract').first.locator('summary').click();m.locator('.mt-contract').first.locator('[data-maint-renew]').click()
+   if renew:m.locator('.mt-contract').first.locator(':scope > summary').click();m.locator('.mt-contract').first.locator('[data-maint-renew]').click()
    else:m.locator('#maintenance-contracts [data-maint-contract]').first.click()
    for k,v in {'name':name,'party':'架空契約先（デモ）','signedDate':'2026-11-06','startDate':start,'endDate':end,'deadline':'2026-11-15','amount':'120000','scope':'設備の基本点検（デモ）','billingCycle':'月次'}.items():f.locator('#lc-mt-'+k).fill(v)
    f.locator('#mt-contractState').select_option(state);f.locator('#mt-autoRenew').select_option('あり');f.locator('#lc-files').set_input_files({'name':name+'.pdf','mimeType':'application/pdf','buffer':b'demo'});submit();expect(dlg).not_to_be_visible()

@@ -8,7 +8,7 @@ from department_notices_smoke import fixture,inner
 ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-legal-broker-review')
 def run():
  OUT.mkdir(exist_ok=True);passed=[];errors=[];writes=[]
- raw=(ROOT/'index.html').read_text();baseline=subprocess.check_output(['git','show','152a528:index.html'],cwd=ROOT,text=True)
+ raw=(ROOT/'index.html').read_text();baseline=subprocess.check_output(['git','show','5192e9a:index.html'],cwd=ROOT,text=True)
  for name in ['batteryCaseSeedData','batteryDepartmentDefinitions']:
   read=lambda text:json.JSONDecoder().raw_decode(inner(text).split('const '+name+'=',1)[1])[0]
   assert read(raw)==read(baseline)
@@ -40,15 +40,15 @@ window.__externalBrokerEdit=()=>batteryCaseMap['G-00003'].power.values.brokers=[
   broker.fill(oldvalue+'、追加の仲介（検証専用）');action('save');saved=p.frames[1].evaluate('window.__brokerState()');assert next(x for x in saved if x['id']=='G-00003')['brokers']==next(x for x in original if x['id']=='G-00003')['brokers']+['追加の仲介（検証専用）'];assert all(x['contracts']==y['contracts'] for x,y in zip(saved,original))
   broker.fill('古い画面の下書き（検証専用）');p.frames[1].evaluate('window.__externalBrokerEdit()');action('save');assert '他部門・他画面' in m.locator('[data-dept-errors]').inner_text();assert broker.input_value()=='古い画面の下書き（検証専用）';action('cancel');assert broker.input_value()=='別画面更新（検証専用）';broker.fill('');action('save');assert next(x for x in p.frames[1].evaluate('window.__brokerState()') if x['id']=='G-00003')['brokers']==[]
   done('existing multiple brokers, punctuation/backslashes and unrelated saves preserve shared values/contracts; concurrent-update conflict preserves drafts; blank clears the shared broker list')
-  p.goto(url,wait_until='networkidle');f.locator('[data-page=legal]').click();tab('bulk');group('rightsTransfer');p.screenshot(path=str(OUT/'rights-transfer-unset.png'));p.set_viewport_size({'width':800,'height':1100});group('common');assert m.locator('.du-bulk-table [data-dept-field=broker]').count()==10;p.screenshot(path=str(OUT/'narrow.png'));p.set_viewport_size({'width':1500,'height':1300})
+  p.evaluate("()=>{for(const k of Object.keys(localStorage))if(k.includes('case-lifecycle'))localStorage.removeItem(k);}");p.goto(url,wait_until='networkidle');f.locator('[data-page=legal]').click();tab('bulk');group('rightsTransfer');p.screenshot(path=str(OUT/'rights-transfer-unset.png'));p.set_viewport_size({'width':800,'height':1100});group('common');assert m.locator('.du-bulk-table [data-dept-field=broker]').count()==10;p.screenshot(path=str(OUT/'narrow.png'));p.set_viewport_size({'width':1500,'height':1300})
   old=b.new_page(viewport={'width':1500,'height':1300});old.route(url,lambda r:r.fulfill(status=200,content_type='text/html',body=baseline));old.goto(url,wait_until='networkidle');of=old.frame_locator('#codex-visualization')
   def state(fr,d,biz,t):
    fr.locator('[data-page='+d+']').click();w=fr.locator('#'+d+'-workspace');w.locator('.du-business-tabs').get_by_role('tab',name=biz,exact=True).click();w.locator('.du-work-tabs').get_by_role('tab',name=t,exact=True).click();return snapshot_html(w)
-  for d in ['realestate','power','sales','legal','procurement','construction','maintenance']:
+  for d in ['realestate','power','sales','legal','procurement','construction']:
    for biz in ['蓄電池','太陽光','データセンター']:
     for t in ['サマリー','データ入力','案件詳細']:
      if d=='legal' and biz=='蓄電池' and t in ['データ入力','案件詳細']:continue
      assert state(f,d,biz,t)==state(of,d,biz,t),(d,biz,t)
-  assert not errors,errors;assert not writes,writes;old.close();b.close();done('all other 61 views unchanged, including solar/datacenter legal, power summary KPIs and existing prior changes; reload resets edits; no JavaScript errors or external writes')
+  assert not errors,errors;assert not writes,writes;old.close();b.close();done('all 52 views outside the intentional maintenance contract scopes match the latest baseline, including solar/datacenter legal and power summary KPIs; explicit storage clearing isolates the baseline; no JavaScript errors or external writes')
  (OUT/'results.json').write_text(json.dumps({'passed':passed,'js_errors':errors,'external_writes':writes},ensure_ascii=False,indent=2))
 if __name__=='__main__':run()
