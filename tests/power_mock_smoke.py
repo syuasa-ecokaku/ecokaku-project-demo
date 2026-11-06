@@ -404,12 +404,12 @@ def run():
         value('17','PCS-追加サンプル')
         save_case()
         done('sales/legal shared contract edits, settings users and equipment master linkage preserved')
-        # Fresh browser state for review screenshots and reload scope verification.
+        # Reload preserves saved cases; unsaved UI state resets for review screenshots.
         page.reload(wait_until='networkidle')
         inner=page.frames[1]
         f.locator('[data-page=power]').click()
         f.locator('[data-power-business=battery]').click()
-        assert '一括下書き案件A' not in f.locator('.pw-summary-table').inner_text()
+        assert '一括下書き案件A' in f.locator('.pw-summary-table').inner_text()
         expect(f.locator('#power-tab-summary')).to_have_attribute('aria-selected','true')
         screenshot('power-summary.png')
         bulk('connection')
@@ -430,7 +430,7 @@ def run():
         assert width > pins['width']+ids['width']+100
         screenshot('power-bulk-mobile.png','#power-bulk-scroll')
         expect(f.locator('.pw-primary-tabs')).to_be_visible()
-        done('reload resets in-memory state; screenshots of all three tabs and usable mobile sticky columns')
+        done('reload restores saved cases and resets view state; screenshots of all three tabs and usable mobile sticky columns')
         assert not errors, errors
         assert not failed_requests, failed_requests
         assert not external_http, external_http

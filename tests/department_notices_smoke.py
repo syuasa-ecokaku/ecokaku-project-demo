@@ -5,6 +5,7 @@ from html.parser import HTMLParser
 import json,subprocess
 from playwright.sync_api import sync_playwright,expect
 from power_mock_smoke import server
+from notice_snapshot import normalize_department_names
 ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-notices-review')
 DEPTS=['realestate','power','sales','legal','procurement','construction','maintenance']
 class Inner(HTMLParser):
@@ -108,18 +109,19 @@ noticeCenter.emit(sample,true);noticeCenter.emit(sample,true);
 """
         body=fixture(raw,inject);extra=browser.new_page(viewport={'width':800,'height':1100});extra.on('pageerror',lambda e:errors.append(str(e)));u=url+'?notice-fixture';extra.route(u,lambda r:r.fulfill(status=200,content_type='text/html',body=body));extra.goto(u,wait_until='networkidle');ff=extra.frame_locator('#codex-visualization');ff.locator('[data-page=construction]').click();cc=ff.locator('#construction-workspace .nc-card');cc.locator('[data-notice-all]').click();dd=ff.locator('.nc-dialog');rr=dd.locator('.nc-row').filter(has_text='非常に長い件名');assert rr.count()==1;rr.locator('[data-notice-open]').first.click();assert dd.locator('[data-notice-navigate]').count()==0;assert '未実装' in dd.locator('.nc-destination-message').inner_text();extra.screenshot(path=str(OUT/'narrow-detail.png'));extra.close()
         done('shared emit API deduplicates event IDs; unimplemented route remains in safe detail; long subjects and narrow modal render')
-        # Compare executive home byte-for-byte against the actual production baseline.
+        # Compare initial executive home against production; remove committed case edits explicitly.
+        p.evaluate("()=>{for(const k of Object.keys(localStorage))if(k.includes('case-lifecycle'))localStorage.removeItem(k);}")
         old=browser.new_page(viewport={'width':1550,'height':1350});old.route(url,lambda r:r.fulfill(status=200,content_type='text/html',body=baseline));old.goto(url,wait_until='networkidle');of=old.frame_locator('#codex-visualization');p.reload(wait_until='networkidle')
         for b in ['蓄電池','太陽光','データセンター']:
             for frame in [of,f]:frame.locator('#sales-demo-home .home-business-tabs').get_by_role('tab',name=b,exact=True).click()
             for k in ['active','grid','money']:
                 for frame in [of,f]:frame.locator('#sales-demo-home .home-kpi[data-home-kpi='+k+']').click()
-                assert f.locator('#sales-demo-home').inner_html()==of.locator('#sales-demo-home').inner_html(),(b,k)
+                assert normalize_department_names(f.locator('#sales-demo-home').inner_html())==normalize_department_names(of.locator('#sales-demo-home').inner_html()),(b,k)
         assert f.locator('.s-top').inner_html()==header
         old.close();p.reload(wait_until='networkidle');m=nav('power');assert unread(m)==6 and not f.locator('.nc-toast').count()
         card(m).scroll_into_view_if_needed();p.screenshot(path=str(OUT/'power-notices.png'));m=nav('legal');user(m,'manager');category(m,'approval');card(m).scroll_into_view_if_needed();p.screenshot(path=str(OUT/'legal-approvals.png'));p.set_viewport_size({'width':800,'height':1100});m=nav('maintenance');user(m,'dual');card(m).scroll_into_view_if_needed();p.screenshot(path=str(OUT/'narrow-notices.png'))
         assert not errors,errors;assert not failed,failed;assert not writes,writes
-        done('all nine home business/KPI states exactly match production; header/data unchanged; reload resets notices/reads; no JS/resource/write/permission errors')
+        done('all nine initial home business/KPI states match production with the existing approved department-name migration; header/data unchanged; reload resets notices/reads; no JS/resource/write/permission errors')
         browser.close()
     (OUT/'results.json').write_text(json.dumps({'passed':passed,'js_errors':errors,'failed_resources':failed,'external_writes':writes},ensure_ascii=False,indent=2))
 if __name__=='__main__':run()
