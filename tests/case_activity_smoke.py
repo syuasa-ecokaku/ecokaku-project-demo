@@ -1,0 +1,97 @@
+"""Shared whole-case activity, service termination, residual work and explicit reopening."""
+from pathlib import Path
+import json
+from playwright.sync_api import sync_playwright,expect
+from power_mock_smoke import server
+from department_notices_smoke import fixture
+ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-case-activity-review')
+INJECT="""
+maintenanceToday=()=> '2026-11-06';
+for(const [number,business,state] of [['M-00001','battery','管理中'],['M-00002','battery','商談中'],['M-00003','battery','契約手続中'],['M-00004','solar','管理中'],['M-00005','datacenter','管理中']])if(!lifecycleSources().some(s=>s.baseNumber===number)){
+ const s=lifecycleNewSource({name:'架空'+number+'管理確認',prefecture:'架空県',city:'架空市',street:'',business,owner:'保守デモ担当A',memo:'',broker:'',files:[]},number);s.maintenanceOnly=true;s.maintenance={route:'standalone',intakeType:'メンテナンス単独受託',intakeState:'accepted',caseState:state,customerParty:'架空契約先',events:[],startDate:'2026-11-01'};for(const [d,v] of Object.entries(s.departments))if(d!=='maintenance')Object.assign(v,{status:'対象外',due:'',next:''});s.contracts=[];s.assets=[{id:'asset-'+number,caseId:s.internalId,name:'架空設備'}];s.records={inspections:[],incidents:[]};lifecycleInsert(s);noticeCenter.registerCase(business,s);maintenanceEnsure(s);maintenanceWorkNormalize(s);
+}
+window.__cs={home:executiveHome,page:showPage,sources:lifecycleSources,whole:caseWholeState,active:caseBusinessActive,category:caseCategory,checks:caseClosureChecks,errors:caseClosureErrors,departments:caseDepartmentOpen,projection:homeProjection,primary:homePrimary,info:homeDepartmentInfo,record:caseRecord,open:maintenanceOpen,form:caseStateForm,wholeFilter:caseStateMatches,snapshot:lifecycleSnapshot,store:departmentStore,deptState:departmentState,scoped:maintenanceScopedSources,kpis:()=>departmentKpis('maintenance'),wholeSave:lifecycleTransaction,workForm:maintenanceWorkForm,contractForm:maintenanceContractForm,contractState:maintenanceContractStatus,render:renderDashboard};
+"""
+def run():
+ OUT.mkdir(exist_ok=True);passed=[];errors=[];writes=[]
+ body=fixture((ROOT/'index.html').read_text(),INJECT)
+ def done(v):passed.append(v);print('PASS',v,flush=True)
+ with server() as url,sync_playwright() as pw:
+  b=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox']);p=b.new_page(viewport={'width':1540,'height':1100},timezone_id='Asia/Tokyo');p.route(url,lambda r:r.fulfill(body=body,content_type='text/html'));p.on('pageerror',lambda e:errors.append(str(e)));p.on('request',lambda r:writes.append(r.url) if r.method not in ['GET','HEAD','OPTIONS'] else None);p.goto(url,wait_until='networkidle');f=p.frame_locator('#codex-visualization');dlg=f.locator('#case-lifecycle-dialog')
+  def api(s):return p.frames[1].evaluate(s)
+  def ref(no):return '__cs.sources().find(s=>(s.baseNumber||s.id)==='+json.dumps(no)+')'
+  def source(no):return api('()=>'+ref(no))
+  def active(no):return api('()=>__cs.active('+ref(no)+')')
+  def open(no):api('()=>__cs.open('+ref(no)+')')
+  def form(no,kind):api('()=>__cs.form('+ref(no)+','+json.dumps(kind)+')');expect(dlg).to_be_visible()
+  def field(key,val):f.locator('#lc-cs-'+key).fill(val)
+  def submit():dlg.locator('#lc-submit').click();expect(f.locator('.lc-busy')).to_be_hidden()
+  def close():dlg.locator('[data-lc-close]').first.click()
+  def reason(value='架空の終了確認'):field('reason',value)
+  def keep(no):
+   s=source(no);return {k:s.get(k) for k in ['id','internalId','baseNumber','formalNumber','revision','contracts','assets','records','changeHistory']}
+  ids={s['internalId'] for s in api('()=>__cs.sources()')};numbers={s['internalId']:[s.get(k) for k in ['id','baseNumber','formalNumber','revision']] for s in api('()=>__cs.sources()')}
+  assert active('P-00001') and active('P-00002');assert active('M-00001') and not active('M-00002') and not active('M-00003')
+  api("()=>{const s="+ref('P-00002')+";s.departments.construction.status='完了';}");assert active('P-00002');assert api('()=>__cs.category('+ref('M-00001')+')')=='maintenance'
+  # Classification must use internal flags, not number prefixes.
+  api("()=>{const s="+ref('M-00001')+";s.baseNumber='G-99999';}");assert api('()=>__cs.category('+ref('G-99999')+')')=='maintenance';api("()=>{const s="+ref('G-99999')+";s.baseNumber='M-00001';}")
+  for business in ['battery','solar','datacenter']:
+   api('()=>{__cs.home.business='+json.dumps(business)+';__cs.render()}');data=api('()=>{const d=__cs.projection();return {count:d.active.length,list:d.active.map(r=>r.id),departments:d.departments.map(x=>x.id)}}');assert int(f.locator('[data-home-ring-total]').inner_text())==data['count'];assert '保守単独M' in f.locator('[data-home-kpi=active]').inner_text();assert sum(map(int,f.locator('[data-home-phase-count]').evaluate_all('(es)=>es.map(e=>e.dataset.homePhaseCount)')))==data['count']
+  done('R/G/P use whole-case continuation; M additionally requires accepted/managing metadata; construction completion does not close P; three-business KPI/list/pipeline and classification agree')
+  # Existing unknown dedicated state is visibly flagged and conservatively retained; phase is not an overall state.
+  api("()=>{const s="+ref('M-00002')+";s.projectStatus='旧独自区分';}");assert api('()=>__cs.whole('+ref('M-00002')+').review');open('M-00002');assert '旧状態' in f.locator('#maintenance-workspace .cs-panel').inner_text();assert source('M-00002').get('projectClosure') is None
+  api("()=>{const s="+ref('M-00002')+";delete s.projectStatus;s.lifecycleStatus='廃止';}");open('M-00002');assert '未記録' in f.locator('#maintenance-workspace .cs-panel').inner_text();assert not active('M-00002');api("()=>{const s="+ref('M-00002')+";delete s.lifecycleStatus;}")
+  done('legacy overall terminal states retain absent dates/users; unknown dedicated state is flagged; department completion and workflow phase are never mass-converted')
+  # Initial P has active contract and state-unknown records. Do not infer or auto-resolve them.
+  original=keep('P-00001');form('P-00001','service-end');field('date','2026-11-07');submit();assert '当日以前' in f.locator('#lc-error').inner_text() and '理由' in f.locator('#lc-error').inner_text();field('date','2026-11-06');reason();submit();assert '保守契約' in f.locator('#lc-error').inner_text() and '状態未確認' in f.locator('#lc-error').inner_text();assert keep('P-00001')==original
+  dlg.locator('[data-case-check-dept=maintenance]').first.click();expect(dlg).not_to_be_visible();assert source('P-00001')['maintenance']['caseState']=='管理中'
+  done('service termination validates required/real/nonfuture date and reason, blocks active contracts/unknown work, and links to the same case without modifying anything')
+  # Preserve the existing signed contract: expire today, and add a signed future renewal.
+  api("()=>{const s="+ref('P-00001')+";for(const c of s.contracts)if(c.kind==='保守契約'){c.startDate='2026-01-01';c.endDate='2026-11-06';}s.records.inspections.forEach(r=>Object.assign(r,{workState:'completed',actualDate:'2026-11-01',operator:'保守デモ担当A',result:'架空の完了'}));s.records.incidents.forEach(r=>Object.assign(r,{workState:'cancelled',cancelReason:'架空の中止'}));const c=s.contracts.find(c=>c.kind==='保守契約');s.contracts.push({...c,id:'future-renewal',previousContractId:c.id,startDate:'2026-11-07',endDate:'2027-11-06'});}")
+  assert source('P-00001')['maintenance']['caseState']=='管理中';assert active('P-00001');form('P-00001','service-end');reason();submit();assert '終了後も有効' in f.locator('#lc-error').inner_text();close()
+  api("()=>{const s="+ref('P-00001')+";s.contracts=s.contracts.filter(c=>c.id!=='future-renewal');s.records.incidents.push({id:'open-work-test',caseId:s.internalId,workState:'unhandled',description:'架空の残障害',priority:'通常'});}");form('P-00001','service-end');reason();submit();assert '未完了' in f.locator('#lc-error').inner_text();close()
+  open('P-00001');f.locator('[data-maint-record="open-work-test"] [data-wr-operation=complete]').click();f.locator('#lc-mt-actualDate').fill('2026-11-06');f.locator('#mt-operator').select_option(label='保守デモ担当A');f.locator('#lc-mt-result').fill('架空の復旧');submit();assert source('P-00001')['maintenance']['caseState']=='管理中';assert source('P-00001').get('projectStatus','')!='終了'
+  done('ended old contract with a signed future renewal still blocks service termination; open incident blocks; completing one work record does not terminate service or contract')
+  # Ordinary status selector must go through the same confirmation, never save directly.
+  open('P-00001');select=f.locator('#maintenance-workspace [data-dept-field=caseState]').first;select.select_option('終了');expect(dlg).to_be_visible();assert api('()=>Object.keys(__cs.store("maintenance").drafts['+ref('P-00001')+'.id]||{}).length')==0;close();assert source('P-00001')['maintenance']['caseState']=='管理中'
+  before=keep('P-00001');form('P-00001','service-end');f.locator('#cs-disposition').select_option('continue');reason();submit();assert all(t in f.locator('#lc-error').inner_text() for t in ['継続担当部門','継続理由','次の対応']);f.locator('#cs-department').select_option('legal');field('continuation-reason','精算書類確認のため');field('next','架空精算書類の最終確認');p.screenshot(path=str(OUT/'maintenance-end-confirmation.png'));submit();expect(dlg).not_to_be_visible();assert source('P-00001')['maintenance']['caseState']=='終了';assert source('P-00001')['projectStatus']=='継続中';assert active('P-00001');assert keep('P-00001')==before;primary=api('()=>__cs.primary(__cs.record('+ref('P-00001')+'))');assert primary['dept']=='legal' and primary['next']=='架空精算書類の最終確認';assert api('()=>__cs.info("legal",__cs.record('+ref('P-00001')+')).needs')
+  assert api('()=>__cs.projection().events.filter(e=>e.record.source==='+ref('P-00001')+'&&e.dept==="maintenance").length')==0
+  done('ordinary End selection invokes the shared modal; same-day contract/service end is allowed; P continuation requires reason/department/next action, preserves numbers/contracts/work and switches primary owner')
+  form('P-00001','close');reason();submit();assert '継続残務' in f.locator('#lc-error').inner_text();close();form('P-00001','residual-complete');reason('架空の精算完了');submit();before=keep('P-00001');form('P-00001','close');reason();f.locator('#lc-submit').evaluate('(e)=>{e.click();e.click()}');expect(f.locator('.lc-busy')).to_be_hidden();expect(dlg).not_to_be_visible();assert source('P-00001')['projectStatus']=='終了';assert not active('P-00001');assert keep('P-00001')==before;history=source('P-00001')['projectStateHistory'];assert sum(h['operation']=='案件全体終了' for h in history)==1
+  open('P-00001');f.locator('[data-maint-record-add]').click();expect(dlg).not_to_be_visible();assert '再開' in f.locator('#case-lifecycle-message').inner_text();f.locator('[data-maint-contract]').first.click();expect(dlg).not_to_be_visible()
+  rid=next(r['id'] for r in source('P-00001')['records']['inspections'] if r['workState']=='completed');f.locator('[data-maint-record="'+rid+'"] [data-wr-operation=correct]').click();f.locator('#lc-mt-reason').fill('終了後の誤記訂正');f.locator('#lc-mt-result').fill('架空の訂正結果');f.locator('#mt-priority').select_option('通常');submit();expect(dlg).not_to_be_visible();assert source('P-00001')['projectStatus']=='終了' and source('P-00001')['maintenance']['caseState']=='終了'
+  done('residual completion then whole-case closure succeeds once; new contracts/work are blocked while reasoned completed-record correction stays possible without reopening')
+  # Historical state filtering and archive navigation keep the same objects.
+  open('P-00001');f.locator('#maintenance-workspace [data-dept-tab=summary]').first.click();assert f.locator('#maintenance-workspace [data-dept-summary-row="P-00001"]').count()==0;f.locator('#maintenance-workspace [data-dept-filter=wholeState]').select_option('終了');assert f.locator('#maintenance-workspace [data-dept-summary-row="P-00001"]').count()==1;f.locator('#maintenance-workspace [data-dept-summary-row="P-00001"] button').first.click();assert '案件全体の状態：終了' in f.locator('#maintenance-workspace .cs-panel').inner_text();assert '終了後の誤記訂正' in f.locator('#maintenance-records').text_content()
+  api('()=>{__cs.home.business="battery";__cs.page("home");__cs.render()}');f.locator('#case-archive > summary').click();f.locator('[data-case-archive-state]').select_option('終了');assert 'P-00001' in f.locator('#case-archive').inner_text();assert not api('()=>__cs.projection().active.some(r=>r.source==='+ref('P-00001')+')');p.screenshot(path=str(OUT/'closed-case-archive.png'))
+  form('P-00001','reopen');submit();assert '理由' in f.locator('#lc-error').inner_text();reason('架空の追加管理');submit();assert active('P-00001');assert source('P-00001')['maintenance']['caseState']=='終了';form('P-00001','service-reopen');reason('保守の再受託');f.locator('#mt-resumeState').select_option('管理中');submit();assert source('P-00001')['maintenance']['caseState']=='管理中';assert source('P-00001')['contracts']==before['contracts']
+  done('closed cases remain searchable in department and company archive; reopening requires a reason, preserves IDs/numbers and never restarts contracts/service without a separate explicit service operation')
+  # M residual work is not globally active but remains in department response count.
+  before_m=keep('M-00001');form('M-00001','service-end');reason();f.locator('#cs-disposition').select_option('continue');f.locator('#cs-department').select_option('maintenance');field('continuation-reason','契約精算');field('next','架空の最終請求確認');submit();assert not active('M-00001');assert source('M-00001')['projectStatus']=='継続中';assert keep('M-00001')==before_m;api('()=>{__cs.home.business="battery";__cs.render()}');assert api('()=>__cs.projection().departments.find(d=>d.id==="maintenance").records.some(r=>r.source==='+ref('M-00001')+')');assert not api('()=>__cs.projection().active.some(r=>r.source==='+ref('M-00001')+')')
+  open('M-00001');p.screenshot(path=str(OUT/'maintenance-residual-detail.png'));form('M-00001','residual-complete');reason('精算済み');submit();form('M-00001','close');reason();submit();assert source('M-00001')['projectStatus']=='終了';form('M-00001','reopen');reason('追加確認');submit();assert not active('M-00001') and source('M-00001')['maintenance']['caseState']=='終了'
+  done('M managing/draft/ended are distinct; ended M residual appears in department follow-up but never active KPI, and can later close/reopen without restarting service')
+  # The normal End selector preserves unrelated and prior unsaved drafts when cancelled.
+  open('M-00003');state_select=f.locator('#maintenance-workspace [data-dept-field=caseState]').first;state_select.select_option('管理中');assert api('()=>__cs.store("maintenance").drafts['+ref('M-00003')+'.id].caseState')=='管理中';state_select.select_option('終了');expect(dlg).to_be_visible();close();assert api('()=>__cs.store("maintenance").drafts['+ref('M-00003')+'.id].caseState')=='管理中';assert source('M-00003')['maintenance']['caseState']=='契約手続中';f.locator('#maintenance-workspace [data-dept-action=cancel]').click()
+  # Other-department applicability and retroactive end-date contradictions.
+  form('P-00002','close');reason();submit();assert '未完了業務' in f.locator('#lc-error').inner_text();assert '電力申請' in f.locator('#cs-checks').inner_text();close()
+  form('M-00003','service-end');reason();field('date','2026-10-31');submit();assert '日付が矛盾' in f.locator('#lc-error').inner_text();close()
+  api("()=>{const s="+ref('M-00002')+";s.records.inspections.push({id:'retroactive-date-work',caseId:s.internalId,workState:'completed',actualDate:'2026-11-05',operator:'保守デモ担当A',result:'確認済み',description:'架空実績',priority:'通常'});}");form('M-00002','service-end');reason();field('date','2026-11-04');submit();assert '日付が矛盾' in f.locator('#lc-error').inner_text();close()
+  form('P-00001','service-end');reason('P案件の全業務終了');submit();assert source('P-00001')['projectStatus']=='終了' and source('P-00001')['maintenance']['caseState']=='終了' and not active('P-00001')
+  done('whole-case close blocks applicable other-department work while future-stage placeholders do not block clean cases; end dates cannot precede management/actual dates; P service and whole-case closure can commit together')
+  # Same end operation can close a clean M in another business; no real new demo data.
+  form('M-00004','service-end');reason();submit();assert not active('M-00004') and source('M-00004')['projectStatus']=='終了';open('M-00004');f.locator('#maintenance-workspace [data-dept-tab=summary]').first.click();f.locator('#maintenance-workspace [data-dept-filter=wholeState]').select_option('all');assert next(k['value'] for k in api('()=>__cs.kpis()') if k['id']=='managing')==0;assert next(k['value'] for k in api('()=>__cs.kpis()') if k['id']=='assets')==0
+  # Save failure must roll back source state and history and retain the modal inputs.
+  before_d=keep('M-00005');before_hist=source('M-00005').get('projectStateHistory',[]);form('M-00005','service-end');reason('保存エラーの検証');p.evaluate("()=>{window.__savedSet=Storage.prototype.setItem;Storage.prototype.setItem=function(){throw new DOMException('mock quota','QuotaExceededError')}}");submit();expect(dlg).to_be_visible();assert source('M-00005')['maintenance']['caseState']=='管理中';assert source('M-00005').get('projectStateHistory',[])==before_hist;assert keep('M-00005')==before_d;assert f.locator('#lc-cs-reason').input_value()=='保存エラーの検証';p.evaluate('()=>{Storage.prototype.setItem=window.__savedSet}');submit();assert source('M-00005')['projectStatus']=='終了';assert len(source('M-00005')['projectStateHistory'])==1
+  done('solar/DC share the same lifecycle predicate; cancel/errors/duplicate submission allocate no case or branch; quota failure restores status/history together and preserves inputs for retry')
+  # All original IDs, numbers, branches survive; classify billing independently of whole status.
+  assert {s['internalId'] for s in api('()=>__cs.sources()')}==ids
+  for s in api('()=>__cs.sources()'):assert [s.get(k) for k in ['id','baseNumber','formalNumber','revision']]==numbers[s['internalId']]
+  api('()=>{__cs.home.business="solar";__cs.render()}');money_before=api('()=>__cs.projection().money.remaining');assert money_before>0
+  solar=api('()=>__cs.projection().money.rows[0].record.source.internalId');api('()=>{const s=__cs.sources().find(s=>s.internalId==='+json.dumps(solar)+');s.projectStatus="終了";}');assert api('()=>__cs.projection().money.remaining')==money_before;assert not api('()=>__cs.projection().active.some(r=>r.source.internalId==='+json.dumps(solar)+')')
+  api('()=>__cs.wholeSave(()=>true)');expect(f.locator('.lc-busy')).to_be_hidden();p.reload(wait_until='networkidle');assert source('M-00005')['projectStatus']=='終了' and len(source('M-00005')['projectStateHistory'])==1;assert source('P-00001')['maintenance']['caseState']=='終了';assert len(source('P-00001')['projectStateHistory'])>=6
+  open('M-00005');p.set_viewport_size({'width':390,'height':844});form('M-00005','reopen');assert dlg.locator('#lc-submit').is_visible();p.screenshot(path=str(OUT/'reopen-mobile.png'));close()
+  assert not errors,errors;assert not writes,writes
+  done('receivables still include terminated cases; all IDs/numbers/branches/counts remain unchanged; reload restores termination/reopening histories; mobile modal works without JS or write requests')
+  b.close()
+ (OUT/'results.json').write_text(json.dumps({'passed':passed,'js_errors':errors,'external_writes':writes},ensure_ascii=False,indent=2))
+if __name__=='__main__':run()
