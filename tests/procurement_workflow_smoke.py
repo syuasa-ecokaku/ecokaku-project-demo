@@ -25,7 +25,11 @@ def run():
   def done(t):passed.append(t);print('PASS',t,flush=True)
   def click(action,id=None,scope=None):
    el=(scope or m).locator('[data-pc-action="'+action+'"]'+('[data-pc-id="'+id+'"]' if id else ''));el.first.click()
-  def submit():dlg.locator('#pc-save').click();expect(f.locator('.lc-busy')).to_be_hidden();page.frames[1].wait_for_function('()=>!__pc.ui.busy')
+  def submit():
+   for name,value in [('actualReceiver','荷受デモ担当'),('inspection','不足・破損なし'),('issueOwner','出庫デモ担当'),('reason','デモ取消理由')]:
+    el=dlg.locator('[name='+name+']')
+    if el.count() and not el.input_value():el.fill(value)
+   dlg.locator('#pc-save').click();expect(f.locator('.lc-busy')).to_be_hidden();page.frames[1].wait_for_function('()=>!__pc.ui.busy')
   def fill(name,value):dlg.locator('[name="'+name+'"]').fill(str(value))
   def select(name,value):dlg.locator('[name="'+name+'"]').select_option(value)
   def open_action(action,id):api('()=>__pc.open('+json.dumps(action)+','+json.dumps(id)+')')
@@ -35,11 +39,13 @@ def run():
   click('metric','overdue');expect(m.locator('#pc-tab-orders')).to_have_attribute('aria-selected','true');assert 'DEMO-BATTERY-001' in m.inner_text();click('clear')
   before=data();baseline_other=api('()=>{const s=__pc.snapshot();delete s.procurement;return s;}')
   # Create one project order, then add a stocked item and freight through the staged UI.
-  click('new-order');fill('number','DEMO-TEST-001');submit();expect(dlg.locator('[name=productId]')).to_be_visible()
-  case=api('()=>__pc.cases("battery")[0].internalId');select('caseId',case);fill('qty',3);fill('price',1001);fill('due','2026-11-30')
-  assert '3,303' in dlg.locator('#pc-line-preview').inner_text();submit()
-  d=data();o=next(x for x in d['orders'] if x['number']=='DEMO-TEST-001');oid=o['id'];l=next(x for x in d['lines'] if x['orderId']==oid)
-  click('new-line',oid);select('productId','freight');select('caseId',case);fill('price',500);submit()
+  click('new-order');detail=m.locator('#pc-order-detail');oid=data()['orders'][-1]['id'];case=api('()=>__pc.cases("battery")[0].internalId')
+  def sf(name,value,line=None,select=False):
+   el=detail.locator('[data-pcs-field='+name+']'+('[data-pcs-line="'+line+'"]' if line else ':not([data-pcs-line])'));el.select_option(value) if select else el.fill(str(value))
+  def stage(action):detail.locator('[data-pcs-action='+action+']').click();expect(f.locator('.lc-busy')).to_be_hidden()
+  def step(v):detail.locator('#pcs-section').select_option(v)
+  sf('supplier','supplier-a',select=True);sf('owner','購買デモ担当');stage('add-line');lid=detail.locator('[data-pcs-field=qty]').get_attribute('data-pcs-line');sf('caseId',case,lid,True);sf('qty',3,lid);stage('add-line');feeid=detail.locator('[data-pcs-field=qty]').last.get_attribute('data-pcs-line');sf('productId','freight',feeid,True);sf('caseId',case,feeid,True);sf('qty',1,feeid);step('order');sf('number','DEMO-TEST-001');sf('date','2026-11-11');sf('price',1001,lid);sf('due','2026-11-30',lid);sf('price',500,feeid);assert '3,303' in detail.locator('[data-pcs-amount="'+lid+'"]').inner_text();stage('confirm-order')
+  d=data();o=next(x for x in d['orders'] if x['number']=='DEMO-TEST-001');l=next(x for x in d['lines'] if x['id']==lid)
   assert api('()=>__pc.total(__pc.data().orders.find(o=>o.id==='+json.dumps(oid)+'))')==3853
   done('staged project order with multiple lines, automatic expense type and line tax rounding')
   # Split delivery; freight role completion cannot increase stock.
@@ -50,7 +56,7 @@ def run():
   open_action('cancel-line',l['id']);submit();d=data();ll=next(x for x in d['lines'] if x['id']==l['id']);assert ll['qty']==3 and ll['cancelled']==1;assert sum(x['qty'] for x in d['receipts'] if x['lineId']==l['id'])==2
   done('split delivery reduces outstanding quantity, expenses never add stock and cancellation preserves received history')
   f.locator('[data-pc-tab=inventory]').click();s=api('()=>__pc.stock("battery","pile","架空第一倉庫")');assert s=={'real':16,'unusable':2,'allocated':6,'available':8,'pending':10}
-  click('allocate','pile|架空第一倉庫');fill('qty',9);submit();assert '超える' in dlg.locator('#pc-error').inner_text();fill('qty',5);submit()
+  click('allocate','pile|架空第一倉庫');fill('qty',9);submit();assert '不足' in dlg.locator('#pc-error').inner_text();fill('qty',5);submit()
   alloc=data()['allocations'][-1];click('issue',alloc['id']);fill('qty',2);submit();s=api('()=>__pc.stock("battery","pile","架空第一倉庫")');assert s['real']==14 and s['allocated']==9 and s['available']==3
   click('release',alloc['id']);fill('qty',1);submit();s=api('()=>__pc.stock("battery","pile","架空第一倉庫")');assert s['real']==14 and s['allocated']==8 and s['available']==4
   direct=next(x for x in data()['lines'] if x['orderId']=='po-battery-1' and x['route']=='direct');open_action('receipt',direct['id']);fill('qty',1);submit();assert api('()=>__pc.stock("battery","pcs","架空第一倉庫").real')==0
@@ -91,7 +97,7 @@ def run():
   for dept in ['sales','legal','power','realestate','construction','maintenance','home']:
    f.locator('[data-page='+dept+']').click();assert f.locator('#sales-demo-home' if dept=='home' else '#'+dept+'-demo-main').is_visible()
   f.locator('[data-page=procurement]').click();open_action('case',case);expect(dlg).to_be_visible();click('case-sales',case,dlg);assert f.locator('#sales-demo-main').is_visible()
-  f.locator('[data-page=procurement]').click();page.set_viewport_size({'width':390,'height':844});click('new-order');expect(dlg.locator('#pc-save')).to_be_visible();page.screenshot(path=str(OUT/'mobile-order.png'));close()
+  f.locator('[data-page=procurement]').click();page.set_viewport_size({'width':390,'height':844});click('new-order');expect(m.locator('#pcs-section')).to_be_visible();page.screenshot(path=str(OUT/'mobile-order.png'))
   # Reset only purchasing; the same review samples and invoice links are restored.
   page.set_viewport_size({'width':1540,'height':1100});other_before_reset=api('()=>{const s=__pc.snapshot();delete s.procurement;return s;}');click('reset');submit();assert data()['orders']==before['orders'] and data()['receipts']==before['receipts'] and data()['invoices']==before['invoices'];assert api('()=>{const s=__pc.snapshot();delete s.procurement;return s;}')==other_before_reset
   assert not errors,errors;assert not writes,writes;done('business isolation, unchanged other-department state, navigation and case links, usable mobile form, no JavaScript errors')
