@@ -56,8 +56,38 @@ def run():
   section('payment');pmt=next(pmt for pmt in data()['payments'] if pmt['orderId']=='po-battery-1');fill('payments',pmt['id'],'amount',1234);section('receipt');section('payment');assert '¥347,734' in m.inner_text();assert next(x for x in data()['payments'] if x['id']==pmt['id'])['amount']!=1234;save();assert next(x for x in data()['payments'] if x['id']==pmt['id'])['amount']==1234;click('aux-generate','po-battery-1');submit();assert next(x for x in data()['payments'] if x['id']==pmt['id'])['amount']==1234;click('aux-generate','po-battery-1');submit();save();payments=[x for x in data()['payments'] if x['orderId']=='po-battery-1'];assert len(payments)==2 and sum(x['amount'] for x in payments)==693000 and any(x['invoiceId']=='invoice-demo-1' for x in payments);select('payments',pmt['id'],'invoiceId','invoice-demo-1');save();assert len(data()['payments'])==pay_count
   done('inline payment amounts/confirmation, staged idempotent condition generation, invoice linkage and distinct totals without double counting')
   # New inventory order and two lines can be entered without opening a case or creating P numbers.
-  section('prep');click('new-order');oid=api('()=>Object.keys(__u.buffer().orders).at(-1)');assert not any(o['id']==oid for o in data()['orders']);fill('orders',oid,'owner','新規デモ担当');select('orders',oid,'supplier','supplier-b');click('aux-new-line',oid);dselect('productId','monitor');dfill('qty',2);dfill('price',1001);dfill('due','2026-11-30');submit();click('aux-new-line',oid);dselect('productId','freight');dfill('qty',1);dfill('price',500);submit();save();o=next(o for o in data()['orders'] if o['id']==oid);lines=[l for l in data()['lines'] if l['orderId']==oid];assert o['draft'] and len(lines)==2 and all(not l['caseId'] for l in lines);section('order');fill('orders',oid,'number','DEMO-COMMON-001');fill('orders',oid,'date','2026-11-11');save();click('confirm-order',oid);submit();assert api('()=>__u.total(__u.data().orders.find(o=>o.id==='+json.dumps(oid)+'))')==2752;section('payment');click('aux-generate',oid);submit();save();new_pay=[x for x in data()['payments'] if x['orderId']==oid];assert len(new_pay)==2 and sum(x['amount'] for x in new_pay)==2752;assert not [r for r in data()['receipts'] if r['lineId'] in [l['id'] for l in lines]];click('order-detail',oid);assert '発注詳細' in dlg.inner_text() and '案件未指定' in dlg.inner_text();close();assert api('()=>__u.snapshot().cases.map(c=>c.internalId)')==before_ids
-  done('new stock order and multiple product/expense lines share IDs, no project is required, amounts round correctly and prepayment precedes receipt')
+  section('prep');click('new-order');oid=api('()=>Object.keys(__u.buffer().orders).at(-1)');assert not any(o['id']==oid for o in data()['orders'])
+  assert not m.locator('[data-pcu-action=confirm-order]').count()
+  assert not m.locator('[data-pcu-col=lines][data-pcu-key=price]').count()
+  fill('orders',oid,'owner','新規デモ担当');select('orders',oid,'supplier','supplier-b')
+  click('aux-new-line',oid)
+  assert not dlg.locator('[name=price], [name=tax], [name=due], [name=route], [name=location], [name=receiver], [name=vehicle]').count()
+  dselect('productId','monitor');dfill('qty',2);dfill('memo','製品の購入準備');submit()
+  click('aux-new-line',oid);dselect('productId','freight');dfill('qty',1);submit()
+  m.locator('[data-pcu-action=edit][data-pcu-id="'+oid+'"][data-pcu-section=order]').click()
+  assert not m.locator('[data-pcu-action=new-order], [data-pcu-action=aux-new-line]').count()
+  assert not m.locator('[data-pcu-col=orders][data-pcu-key=owner], [data-pcu-col=orders][data-pcu-key=supplier], [data-pcu-col=lines][data-pcu-key=productId], [data-pcu-col=lines][data-pcu-key=qty]').count()
+  assert '新規デモ担当' in m.locator('[data-pcu-prep-reference="'+oid+'"]').inner_text()
+  assert '未確定' in m.locator('[data-pcu-total="'+oid+'"]').inner_text()
+  # The return link preserves IDs, filters and unsaved contents. Prepare edits appear read-only in ②.
+  m.locator('[data-pcu-action=edit][data-pcu-id="'+oid+'"][data-pcu-section=prep]').click()
+  lineids=api('()=>Object.keys(__u.buffer().lines)');productline,freightline=lineids
+  assert cell('lines',productline,'memo').input_value()=='製品の購入準備'
+  fill('lines',productline,'qty',3)
+  m.locator('[data-pcu-action=edit][data-pcu-id="'+oid+'"][data-pcu-section=order]').click()
+  assert '3 台' in m.locator('[data-pcu-line-reference="'+productline+'"]').inner_text()
+  fill('orders',oid,'number','DEMO-COMMON-001');fill('orders',oid,'date','2026-11-11');save()
+  o=next(o for o in data()['orders'] if o['id']==oid);lines=[l for l in data()['lines'] if l['orderId']==oid]
+  assert o['draft'] and len(lines)==2 and all(not l['caseId'] and l['price'] is None for l in lines)
+  # Price is entered only in ②; a saved preparation cannot be confirmed with an unknown price.
+  click('confirm-order',oid);submit();assert '単価' in dlg.locator('#pc-error').inner_text();close();assert next(o for o in data()['orders'] if o['id']==oid)['draft']
+  m.locator('[data-pcu-action=edit][data-pcu-id="'+oid+'"][data-pcu-section=prep]').click();fill('lines',productline,'qty',2)
+  m.locator('[data-pcu-action=edit][data-pcu-id="'+oid+'"][data-pcu-section=order]').click()
+  fill('lines',productline,'price',1001);fill('lines',productline,'due','2026-11-30');fill('lines',freightline,'price',500)
+  assert '¥2,752' in m.locator('[data-pcu-total="'+oid+'"]').inner_text(), (m.locator('[data-pcu-total="'+oid+'"]').inner_text(),api('()=>__u.buffer()'))
+  save();click('confirm-order',oid);submit();assert api('()=>__u.total(__u.data().orders.find(o=>o.id==='+json.dumps(oid)+'))')==2752
+  section('payment');click('aux-generate',oid);submit();save();new_pay=[x for x in data()['payments'] if x['orderId']==oid];assert len(new_pay)==2 and sum(x['amount'] for x in new_pay)==2752;assert not [r for r in data()['receipts'] if r['lineId'] in [l['id'] for l in lines]];click('order-detail',oid);assert '発注詳細' in dlg.inner_text() and '案件未指定' in dlg.inner_text();close();assert api('()=>__u.snapshot().cases.map(c=>c.internalId)')==before_ids
+  done('① purchase-only preparation and ② read-only references/conditions have separate actions; drafts survive round trips, unknown prices prevent confirmation, live amounts and prepayment remain consistent')
   # New invoice and transfer auxiliary screens follow the same bulk-save contract.
   click('aux-new-invoice',oid);dfill('number','DEMO-INV-COMMON');dfill('invoiceDate','2026-11-01');dfill('receivedDate','2026-11-03');dfill('confirmedDate','2026-11-05');dfill('amount',1000);dselect('status','確認済');dlg.locator('[name=files]').set_input_files({'name':'架空請求書.pdf','mimeType':'application/pdf','buffer':b'demo'});submit();assert not any(i['number']=='DEMO-INV-COMMON' for i in data()['invoices']);save();invoice=next(i for i in data()['invoices'] if i['number']=='DEMO-INV-COMMON');assert invoice['invoiceDate']!=invoice['receivedDate'] and invoice['receivedDate']!=invoice['confirmedDate'] and invoice['files']==['架空請求書.pdf'];select('payments',new_pay[0]['id'],'invoiceId',invoice['id']);select('payments',new_pay[0]['id'],'basis','請求書確認');save();assert len([p for p in data()['payments'] if p['orderId']==oid])==2
   click('aux-new-payment',oid);dfill('memo','日付・金額が未確定');submit();save();unknown=data()['payments'][-1];assert unknown['amount'] is None and unknown['date']=='';assert '未確定' in m.inner_text()
