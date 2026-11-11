@@ -8,3 +8,5 @@
 担当者向け：[購買の操作手順書（ブラウザー版）](docs/purchasing-manual.html) ／ [PDF（全10ページ）](docs/purchasing-manual.pdf) ／ [PowerPoint（編集可能・全10枚）](docs/purchasing-manual.pptx)
 
 図のみ：[業務フロー図](docs/purchasing-workflow.svg) ／ [データ構成図](docs/purchasing-data-structure.svg)
+
+入力する項目を1枚で確認：[入力区分ごとのデータ入力フロー](docs/purchasing-input-flow.svg) ／ [PowerPoint（編集可能・1枚）](docs/purchasing-input-flow.pptx) ／ [PDF](docs/purchasing-input-flow.pdf)
