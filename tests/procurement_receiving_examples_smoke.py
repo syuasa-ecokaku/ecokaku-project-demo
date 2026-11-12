@@ -59,7 +59,12 @@ def run():
             by_id = {row['id']:row for row in upgraded[col]}
             for row in original[col]:
                 assert all(by_id[row['id']].get(k)==v for k,v in row.items()), (col, row['id'])
-        assert api('()=>__rx.snapshot().cases') == original_cases
+        upgraded_cases = api('()=>__rx.snapshot().cases')
+        assert len(upgraded_cases) == len(original_cases)
+        for prior in original_cases:
+            current = next(c for c in upgraded_cases if c['internalId'] == prior['internalId'])
+            assert all(current.get(k) == v for k,v in prior.items())
+            assert set(current) - set(prior) <= {'customerId','customerContactId','customerContactName','salesEmployeeId','salesEmployeeName'}
         assert api('()=>__rx.stock("battery","pile","架空第一倉庫")') == original_stock
         assert upgraded['receiptExamplesVersion'] == 1
         done('saved previous-version data and case IDs survive the additive example upgrade unchanged')
