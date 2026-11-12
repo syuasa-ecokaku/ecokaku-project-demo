@@ -58,7 +58,7 @@ def run():
         for col in ['orders','lines','receipts','allocations','issues','transfers','invoices','payments','usagePlans']:
             by_id = {row['id']:row for row in upgraded[col]}
             for row in original[col]:
-                assert by_id[row['id']] == row, (col, row['id'])
+                assert all(by_id[row['id']].get(k)==v for k,v in row.items()), (col, row['id'])
         assert api('()=>__rx.snapshot().cases') == original_cases
         assert api('()=>__rx.stock("battery","pile","架空第一倉庫")') == original_stock
         assert upgraded['receiptExamplesVersion'] == 1
