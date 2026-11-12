@@ -10,3 +10,5 @@
 図のみ：[業務フロー図](docs/purchasing-workflow.svg) ／ [データ構成図](docs/purchasing-data-structure.svg)
 
 入力する項目を1枚で確認：[入力区分ごとのデータ入力フロー](docs/purchasing-input-flow.svg) ／ [PowerPoint（編集可能・1枚）](docs/purchasing-input-flow.pptx) ／ [PDF](docs/purchasing-input-flow.pdf)
+
+購買の仕入先・担当者の設定：[マスター管理・保存と引継ぎの確認ガイド](docs/procurement-master-management-review.md)
