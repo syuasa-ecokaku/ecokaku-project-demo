@@ -21,10 +21,17 @@ def run():
   def sources():return api('()=>__lifecycle.snapshot().cases')
   def find(name):return next(c for c in sources() if c['name']==name)
   def nav(d):f.locator('[data-page='+d+']').click()
-  def open_case(s,d):api('()=>__lifecycle.open(__lifecycle.sources().find(s=>s.internalId==='+json.dumps(s['internalId'])+'),'+json.dumps(d)+')')
+  def open_case(s,d):
+   api('()=>__lifecycle.open(__lifecycle.sources().find(s=>s.internalId==='+json.dumps(s['internalId'])+'),'+json.dumps(d)+')')
+   if d=='procurement':
+    m=f.locator('#procurement-workspace');m.locator('[data-pcu-tab=detail]').click();m.locator('#pcu-case-select').select_option(s['internalId'])
+  def shared(s,d):
+   if d=='procurement':return f.locator('#procurement-workspace #pcu-view')
+   return f.locator('#'+d+'-demo-main [data-lifecycle-case="'+s['internalId']+'"]').first
   def wait():expect(f.locator('.lc-busy')).to_be_hidden()
   def initiate(d,name,business='battery'):
    nav(d);f.locator('[data-lc-new='+d+']').click();f.locator('#lc-business').select_option(business)
+   if d=='power':f.locator('#lc-caseType').select_option('new')
    for k,v in {'name':name,'prefecture':'架空県','city':'検証市'+name[-2:]}.items():f.locator('#lc-'+k).fill(v)
    f.locator('#lc-owner').select_option(label='不動産デモ担当A')
   def submit():f.locator('#lc-submit').click();wait()
@@ -33,7 +40,7 @@ def run():
   initial=len(sources());nav('realestate');f.locator('[data-lc-new=realestate]').click();submit();assert '仮案件名' in f.locator('#lc-error').inner_text();assert len(sources())==initial;f.locator('[data-lc-close]').first.click();assert not p.evaluate('Object.keys(localStorage).some(k=>k.includes("case-lifecycle"))')
   initiate('realestate','架空起案検証01');p.screenshot(path=str(OUT/'initiation-desktop.png'));f.locator('#lc-files').set_input_files({'name':'起案根拠（デモ）.txt','mimeType':'text/plain','buffer':b'demo'});f.locator('#lc-submit').evaluate('(b)=>{b.click();b.click();}');wait();s=find('架空起案検証01');assert s['baseNumber']=='R-00005' and s['id'].startswith('case-');assert len(sources())==initial+1 and len(s['relatedFiles'])==1
   for d in ['realestate','power','sales','legal','procurement','construction','maintenance']:
-   open_case(s,d);expect(f.locator('#'+d+'-demo-main [data-lifecycle-case="'+s['internalId']+'"]').first).to_be_visible()
+   open_case(s,d);expect(shared(s,d)).to_be_visible()
   initiate('power','架空起案検証02');f.locator('#lc-city').fill('検証市01');submit();assert '既存案件候補' in f.locator('#lc-error').inner_text();f.locator('#lc-separate').check();submit();g=find('架空起案検証02');assert g['baseNumber']=='G-00011';assert len(sources())==initial+2
   done('R/G registration only after valid commit; errors/cancel/double-click consume no numbers; one immutable case is visible in all seven departments; filename metadata is saved')
   initiate('power','架空起案検証01');candidate=f.locator('[data-lc-existing="'+s['internalId']+'"]');expect(candidate).to_be_visible();candidate.click();wait();assert len(sources())==initial+2;expect(f.locator('#power-view [data-lifecycle-case="'+s['internalId']+'"]')).to_be_visible();assert 'R-00005' in f.locator('#power-view').inner_text()
@@ -50,6 +57,8 @@ def run():
   api("()=>__lifecycle.identity('admin')");api("async()=>{const s=__lifecycle.sources().find(s=>s.baseNumber==='R-00005');await __lifecycle.approve(s);await __lifecycle.approve(s);}");wait();s=find(s['name']);assert s['formalNumber']=='P-00007' and s['revision']==0 and len(s['changeHistory'])==2;assert 'R-00005-02' in s['previousNumbers']
   change(s,'construction','name','架空正式化変更01');s=find('架空正式化変更01');assert s['revision']==1 and s['changeHistory'][0]['number']=='P-00007-01';assert len(sources())==initial+2
   for d in ['realestate','power','sales','legal','procurement','construction','maintenance']:
+   if d=='procurement':
+    open_case(s,d);assert 'P-00007-01' in shared(s,d).inner_text();continue
    if d=='maintenance':
     open_case(s,d);assert 'P-00007-01' in f.locator('#maintenance-workspace [data-lifecycle-case]').inner_text();continue
    open_case(s,d);m=f.locator('#'+d+'-workspace');m.locator('#power-tab-summary' if d=='power' else '.du-work-tabs [data-dept-tab=summary]').click();search=m.locator('#power-search' if d=='power' else '[data-dept-filter=search]')
@@ -64,17 +73,17 @@ def run():
   initiate('power','架空失敗起案03');submit();assert '保存容量' in f.locator('#lc-error').inner_text();assert len(sources())==initial+2;f.locator('[data-lc-close]').first.click();p.evaluate('()=>{Storage.prototype.setItem=window.__realSet;}')
   initiate('power','架空成功起案03');submit();third=find('架空成功起案03');assert third['baseNumber']=='G-00012'
   done('storage quota failures roll back data, branch/history and new-case registration; next successful registration reuses the unconsumed number')
-  p.reload(wait_until='networkidle');s=find('架空正式化変更01');assert s['revision']==1 and s['formalNumber']=='P-00007' and len(s['changeHistory'])==3;assert len(sources())==initial+3;open_case(s,'procurement');expect(f.locator('[data-lifecycle-case="'+s['internalId']+'"]:visible')).to_contain_text('P-00007-01')
+  p.reload(wait_until='networkidle');s=find('架空正式化変更01');assert s['revision']==1 and s['formalNumber']=='P-00007' and len(s['changeHistory'])==3;assert len(sources())==initial+3;open_case(s,'procurement');expect(shared(s,'procurement')).to_contain_text('P-00007-01')
   done('reload restores common cases, exact immutable IDs, formal number, revisions, history and approval state')
   for business,name in [('solar','架空太陽光検証04'),('datacenter','架空DC検証05')]:
    initiate('realestate',name,business);submit();c=find(name)
-   for d in ['realestate','power','sales','legal','procurement','construction','maintenance']:open_case(c,d);expect(f.locator('#'+d+'-demo-main [data-lifecycle-case="'+c['internalId']+'"]').first).to_be_visible()
+   for d in ['realestate','power','sales','legal','procurement','construction','maintenance']:open_case(c,d);expect(shared(c,d)).to_be_visible()
    change(c,'power','name',name+'改');assert find(name+'改')['revision']==1
   done('solar/datacenter initiation and shared details work across all departments without copying battery workflow fields')
   # Stale browser tabs cannot silently overwrite a newer catalogue or issue the same number.
   stale=page();sf=stale.frame_locator('#codex-visualization');initiate('realestate','架空最新起案06');submit();current_count=len(sources());sf.locator('[data-page=power]').click();sf.locator('[data-lc-new=power]').click()
   for k,v in {'name':'架空競合起案07','prefecture':'架空県','city':'競合市'}.items():sf.locator('#lc-'+k).fill(v)
-  sf.locator('#lc-owner').select_option(label='不動産デモ担当A');sf.locator('#lc-submit').click();expect(sf.locator('.lc-busy')).to_be_hidden();assert '別の画面' in sf.locator('#lc-error').inner_text();stale.reload(wait_until='networkidle');assert stale.frames[1].evaluate('()=>__lifecycle.sources().length')==current_count;stale.close()
+  sf.locator('#lc-caseType').select_option('new');sf.locator('#lc-owner').select_option(label='不動産デモ担当A');sf.locator('#lc-submit').click();expect(sf.locator('.lc-busy')).to_be_hidden();assert '別の画面' in sf.locator('#lc-error').inner_text();stale.reload(wait_until='networkidle');assert stale.frames[1].evaluate('()=>__lifecycle.sources().length')==current_count;stale.close()
   done('same-origin multi-tab sequence conflict rejects stale writes, prevents duplicate issuance and preserves the latest catalogue')
   p.set_viewport_size({'width':390,'height':844});nav('power');f.locator('[data-lc-new=power]').click();p.screenshot(path=str(OUT/'initiation-mobile.png'));box=f.locator('#case-lifecycle-dialog').bounding_box();assert box['width']<=390 and box['height']<=844;f.locator('#lc-name').fill('架空');f.locator('#lc-submit').scroll_into_view_if_needed();expect(f.locator('#lc-submit')).to_be_visible();f.locator('[data-lc-close]').first.click()
   assert not errors,errors
