@@ -11,6 +11,7 @@ import json
 import os
 import threading
 from playwright.sync_api import sync_playwright, expect
+from verified_cdn import verified_cdn
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = Path(os.environ.get('ECOKAKU_REVIEW_DIR', '/tmp/ecokaku-power-three-review'))
@@ -38,6 +39,7 @@ def run():
     with server() as url, sync_playwright() as pw:
         browser = pw.chromium.launch(executable_path='/usr/bin/chromium', headless=True, args=['--no-sandbox'])
         page = browser.new_page(viewport={'width': 1440, 'height': 1300}, timezone_id='Asia/Tokyo')
+        verified_cdn(page)
         page.on('pageerror', lambda err: errors.append(str(err)))
         page.on('requestfailed', lambda req: failed_requests.append({'url': req.url, 'error': req.failure}))
         page.on('request', lambda req: writes.append({'url': req.url, 'method': req.method}) if req.method not in ['GET', 'HEAD', 'OPTIONS'] else None)
@@ -241,24 +243,29 @@ def run():
         f.locator('[data-power-scope=connection]').uncheck()
         save_case()
         detail(0,'basic')
-        value('18','1.5')
         value('追加1','独立した申請住所')
-        f.locator('[data-power-action=saveCase]').first.click()
-        assert 'PCS台数' in f.locator('.pw-errors').inner_text()
+        f.locator('[data-pin-equipment]').click()
+        equipment=f.locator('#pin-equipment-dialog')
+        pcs=equipment.locator('[data-pin-models=pcsModels] [data-pin-row]').first
+        bat=equipment.locator('[data-pin-models=batteryModels] [data-pin-row]').first
+        pcs.locator('[data-pin-model=model]').fill('PCS-B（サンプル）')
+        pcs.locator('[data-pin-model=qty]').fill('1.5')
+        equipment.locator('[data-pin-equipment-apply]').click()
+        assert '正の整数' in equipment.locator('#pin-equipment-error').inner_text()
+        pcs.locator('[data-pin-model=qty]').fill('5')
+        bat.locator('[data-pin-model=model]').fill('BAT-B（サンプル）')
+        bat.locator('[data-pin-model=qty]').fill('6')
+        equipment.locator('[data-pin-equipment-apply]').click()
         expect(field('追加1')).to_have_value('独立した申請住所')
-        value('18','5')
-        value('20','6')
-        value('17','PCS-B（サンプル）')
-        value('19','BAT-B（サンプル）')
         value('13','アグリゲーターB（サンプル）')
         f.locator('[data-power-action=qbAdd]').click()
         f.locator('[data-power-qb="1"][data-qb-key=maker]').select_option('メーカーB（サンプル）')
         f.locator('[data-power-qb="1"][data-qb-key=spec]').select_option('QB-B（サンプル）')
         save_case()
-        expect(field('18')).to_have_value('5')
-        assert not field('17').evaluate('(e)=>e.multiple') and not field('19').evaluate('(e)=>e.multiple')
+        assert 'PCS-B（サンプル） ／ 5台' in f.locator('#power-section-basic').inner_text()
+        assert 'BAT-B（サンプル） ／ 6台' in f.locator('#power-section-basic').inner_text()
         assert 'アグリゲーターA（サンプル） → アグリゲーターB（サンプル）' in f.locator('#power-section-records').inner_text()
-        done('out-of-scope exclusion, integer equipment counts, single models, multi-line cubicles and aggregator history')
+        done('out-of-scope exclusion, positive integer multi-model rows, multi-line cubicles and aggregator history')
         value('42','2028-01-31')
         value('burdenPlanned','2028-01-31')
         value('34','1')
@@ -390,6 +397,7 @@ def run():
         assert 'SC-THREE-001' in f.locator('#sales-demo-panel').inner_text()
         f.locator('[data-page=settings]').click()
         f.locator('[data-setting=masters]').click()
+        f.locator('[data-pcm-screen=legacy]').click()
         f.locator('#settings-master-kind').select_option('PCS型式')
         f.locator('#settings-master-name').fill('PCS-追加サンプル')
         f.locator('#settings-master-add').click()
@@ -401,9 +409,11 @@ def run():
         f.locator('[data-page=power]').click()
         f.locator('[data-power-business=battery]').click()
         detail(0,'basic')
-        value('17','PCS-追加サンプル')
+        f.locator('[data-pin-equipment]').click()
+        equipment.locator('[data-pin-models=pcsModels] [data-pin-model=model]').first.fill('PCS-追加サンプル')
+        equipment.locator('[data-pin-equipment-apply]').click()
         save_case()
-        done('sales/legal shared contract edits, settings users and equipment master linkage preserved')
+        done('sales/legal shared contract edits, settings users/equipment masters preserved; multi-model input accepts free text')
         # Reload preserves saved cases; unsaved UI state resets for review screenshots.
         page.reload(wait_until='networkidle')
         inner=page.frames[1]

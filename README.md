@@ -14,3 +14,5 @@
 購買の仕入先・担当者の設定：[マスター管理・保存と引継ぎの確認ガイド](docs/procurement-master-management-review.md)
 
 営業の顧客・窓口担当者：[顧客マスターの操作・保存と引継ぎの確認ガイド](docs/sales-customer-master-review.md)
+
+電力申請の起案区分・名義・容量・複数型式：[新規案件起案と基本設備情報の確認ガイド](docs/power-initiation-details.md)

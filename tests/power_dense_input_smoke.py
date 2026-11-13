@@ -2,6 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright, expect
+from verified_cdn import verified_cdn
 from power_mock_smoke import server
 
 OUT=Path('/tmp/ecokaku-power-dense-review')
@@ -13,6 +14,7 @@ def run():
     with server() as url,sync_playwright() as pw:
         b=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
         page=b.new_page(viewport={'width':1440,'height':1300},timezone_id='Asia/Tokyo')
+        verified_cdn(page)
         page.on('pageerror',lambda e:errors.append(str(e)))
         page.on('requestfailed',lambda r:failed.append(r.url+' '+str(r.failure)))
         page.on('request',lambda r:writes.append(r.url) if r.method not in ['GET','HEAD','OPTIONS'] else None)

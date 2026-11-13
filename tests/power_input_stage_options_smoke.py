@@ -9,16 +9,16 @@ ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-power-input-stag
 STAGES=['すべて','基本情報','接続検討','本申込','名義・設備変更','連系準備','受電・送電','商業運転','市場参入']
 def run():
  OUT.mkdir(exist_ok=True);passed=[];errors=[]
- raw=(ROOT/'index.html').read_text();baseline=subprocess.check_output(['git','show','36dd6e0:index.html'],cwd=ROOT,text=True)
+ raw=(ROOT/'index.html').read_text();baseline=subprocess.check_output(['git','show','7b18555:index.html'],cwd=ROOT,text=True)
  with server() as url,sync_playwright() as pw:
   b=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox']);p=b.new_page(viewport={'width':1500,'height':1300});p.on('pageerror',lambda e:errors.append(str(e)));p.goto(url,wait_until='networkidle');f=p.frame_locator('#codex-visualization');f.locator('[data-page=power]').click();m=f.locator('#power-workspace');m.locator('[data-power-tab=bulk]').click()
   def done(s):passed.append(s);print('PASS',s,flush=True)
   def ids():return m.locator('[data-power-bulk-row]').evaluate_all('(es)=>es.map(e=>e.dataset.powerBulkRow)')
   def cell(id,key):return m.locator('[data-power-bulk-row="'+id+'"] [data-power-field="'+key+'"]')
-  expected=['接続検討','本申込・支払','名義・設備変更','連系準備・受電','商用運転・市場参入','取下']
+  expected=['基本情報・設備','接続検討','本申込・支払','名義・設備変更','連系準備・受電','商用運転・市場参入','取下']
   assert m.locator('#power-bulk-stage option').all_text_contents()==expected
   assert m.locator('#power-input-current-stage option').all_text_contents()==STAGES
-  for key,label in zip(['connection','main','aggregator','grid','operation','withdrawal'],expected):
+  for key,label in zip(['basic','connection','main','aggregator','grid','operation','withdrawal'],expected):
    m.locator('#power-bulk-stage').select_option(key);assert m.locator('#power-bulk-heading').inner_text()==label;assert len(ids())==10
   assert '取下関連の入力項目は現在未定義' in m.inner_text();assert m.locator('thead th').all_text_contents()==['案件番号','申請案件名','担当者','対応状態（共通）','対応期限（共通）','詳細']
   cell('G-00003','commonStatus').select_option('保留');m.locator('#power-bulk-stage').select_option('aggregator');assert cell('G-00003','commonStatus').input_value()=='保留';assert cell('G-00003','69').count()==1
@@ -48,9 +48,9 @@ for(let i=0;i<batteryCases.length;i++){const d=batteryCases[i].power;d.values={k
   for d in ['power','sales','legal','procurement','construction','maintenance']:
    for business in ['蓄電池','太陽光','データセンター']:
     for t in ['サマリー','データ入力','案件詳細']:
-     if (d,business,t)==('power','蓄電池','データ入力'):continue
+     if d=='power' and (business!='蓄電池' or t!='サマリー'):continue
      if d=='legal' and business=='蓄電池' and t in ['データ入力','案件詳細']:continue
      assert state(f,d,business,t)==state(of,d,business,t),(d,business,t)
-  assert not errors,errors;old.close();b.close();done('all other 51 views unchanged, including summary stage counts and other businesses; no JavaScript errors')
+  assert not errors,errors;old.close();b.close();done('untouched department views and battery summary stage counts match the prior release; no JavaScript errors')
  (OUT/'results.json').write_text(json.dumps({'passed':passed,'js_errors':errors},ensure_ascii=False,indent=2))
 if __name__=='__main__':run()

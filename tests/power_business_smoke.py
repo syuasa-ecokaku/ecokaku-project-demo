@@ -2,6 +2,7 @@
 from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright, expect
+from verified_cdn import verified_cdn
 from power_mock_smoke import server
 
 OUTPUT=Path('/tmp/ecokaku-power-business-review')
@@ -13,6 +14,7 @@ def run():
     with server() as url,sync_playwright() as pw:
         browser=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
         page=browser.new_page(viewport={'width':1440,'height':1300},timezone_id='Asia/Tokyo')
+        verified_cdn(page)
         page.on('pageerror',lambda e:errors.append(str(e)))
         page.on('requestfailed',lambda r:failed.append({'url':r.url,'error':r.failure}))
         page.on('request',lambda r:writes.append(r.method+' '+r.url) if r.method not in ['GET','HEAD','OPTIONS'] else None)
@@ -74,7 +76,10 @@ def run():
             for mode in ['summary','bulk','detail']:
                 tab(mode);business(key)
                 expect(f.locator(f'#power-tab-{mode}')).to_have_attribute('aria-selected','true')
-                assert message in f.locator(f'[data-power-placeholder={key}]').inner_text()
+                if mode=='bulk':
+                    assert f.locator('#pin-nonbattery-group').is_visible()
+                    assert '基本情報・設備' in f.locator('#power-view').inner_text()
+                else:assert message in f.locator(f'[data-power-placeholder={key}]').inner_text()
                 assert f.locator('[data-power-field],input[type=file],.pw-section').count()==0
                 business('battery')
                 expect(f.locator(f'#power-tab-{mode}')).to_have_attribute('aria-selected','true')
