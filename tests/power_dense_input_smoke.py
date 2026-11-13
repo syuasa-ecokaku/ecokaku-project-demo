@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 from playwright.sync_api import sync_playwright, expect
 from verified_cdn import verified_cdn
+from department_notices_smoke import fixture
 from power_mock_smoke import server
 
 OUT=Path('/tmp/ecokaku-power-dense-review')
@@ -18,6 +19,8 @@ def run():
         page.on('pageerror',lambda e:errors.append(str(e)))
         page.on('requestfailed',lambda r:failed.append(r.url+' '+str(r.failure)))
         page.on('request',lambda r:writes.append(r.url) if r.method not in ['GET','HEAD','OPTIONS'] else None)
+        raw=fixture((Path(__file__).resolve().parents[1]/'index.html').read_text(),'window.__denseValues=()=>Object.fromEntries(powerProjects.map(p=>[p.id,powerRecord(p).values]));')
+        page.route(url,lambda r:r.fulfill(body=raw,content_type='text/html'))
         assert page.goto(url,wait_until='networkidle').status==200
         f=page.frame_locator('#codex-visualization');home_before=f.locator('#sales-demo-home').inner_text()
         f.locator('[data-page=power]').click()
@@ -53,7 +56,7 @@ def run():
         done('10 unique battery rows shared with summary; one item per cell; 52px rows, 34px editors, no supplements and rightmost detail column')
         statuses=set()
         for pid in IDS:
-            application=cell(pid,'24').input_value();invoice=cell(pid,'25').input_value();due=cell(pid,'connectionDue').input_value()
+            application=cell(pid,'24').input_value();invoice=cell(pid,'25').input_value();due=page.frames[1].evaluate('(id)=>window.__denseValues()[id].connectionDue',pid)
             if application:
                 assert '2026-01-01'<=application<='2026-10-31'
                 assert application<=invoice<=due
@@ -64,7 +67,7 @@ def run():
             statuses.add(cell(pid,'commonStatus').input_value())
             if pid not in ['P-00001','P-00002','G-00003']:
                 assert '蓄電所' in cell(pid,'7').input_value()
-                assert cell(pid,'commonDue').input_value().startswith('2026-11-')
+                assert page.frames[1].evaluate('(id)=>window.__denseValues()[id].commonDue',pid).startswith('2026-11-')
         assert {'対応中','確認待ち','完了'}<=statuses
         done('10 reused battery samples have unique existing-format IDs, varied states and consistent application/invoice/payment dates')
         first=rows.first.get_attribute('data-power-bulk-row')
@@ -72,13 +75,13 @@ def run():
         assert cell(first,'25').evaluate('(e)=>e===document.activeElement')
         cell(first,'25').press('Shift+Tab')
         assert cell(first,'24').evaluate('(e)=>e===document.activeElement')
-        cell(first,'connectionDue').focus();cell(first,'connectionDue').press('Tab')
+        cell(first,'25').focus();cell(first,'25').press('Tab')
         assert cell(first,'connectionProof').evaluate('(e)=>e===document.activeElement')
         order=rows.evaluate_all('(els)=>els.map(e=>e.dataset.powerBulkRow)')
-        cell(first,'35').focus();cell(first,'35').press('Tab')
+        cell(first,'34').focus();cell(first,'34').press('Tab')
         assert cell(order[1],'7').evaluate('(e)=>e===document.activeElement')
         cell(order[1],'7').press('Shift+Tab')
-        assert cell(first,'35').evaluate('(e)=>e===document.activeElement')
+        assert cell(first,'34').evaluate('(e)=>e===document.activeElement')
         done('Tab and Shift+Tab move between complete date cells, skip references and continue across rows')
         for i,pid in enumerate(sorted(IDS)):
             cell(pid,'31').fill('000-DENSE-'+str(i))

@@ -1,4 +1,4 @@
-"""Battery input-stage labels, withdrawal empty state and saved-value stage filters."""
+"""Battery input-stage labels, withdrawal fields and saved-value stage filters."""
 from pathlib import Path
 import json,subprocess
 from playwright.sync_api import sync_playwright,expect
@@ -9,24 +9,24 @@ ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-power-input-stag
 STAGES=['すべて','基本情報','接続検討','本申込','名義・設備変更','連系準備','受電・送電','商業運転','市場参入']
 def run():
  OUT.mkdir(exist_ok=True);passed=[];errors=[]
- raw=(ROOT/'index.html').read_text();baseline=subprocess.check_output(['git','show','7b18555:index.html'],cwd=ROOT,text=True)
+ raw=(ROOT/'index.html').read_text();baseline=subprocess.check_output(['git','show','b016135:index.html'],cwd=ROOT,text=True)
  with server() as url,sync_playwright() as pw:
   b=pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox']);p=b.new_page(viewport={'width':1500,'height':1300});p.on('pageerror',lambda e:errors.append(str(e)));p.goto(url,wait_until='networkidle');f=p.frame_locator('#codex-visualization');f.locator('[data-page=power]').click();m=f.locator('#power-workspace');m.locator('[data-power-tab=bulk]').click()
   def done(s):passed.append(s);print('PASS',s,flush=True)
   def ids():return m.locator('[data-power-bulk-row]').evaluate_all('(es)=>es.map(e=>e.dataset.powerBulkRow)')
   def cell(id,key):return m.locator('[data-power-bulk-row="'+id+'"] [data-power-field="'+key+'"]')
-  expected=['基本情報・設備','接続検討','本申込・支払','名義・設備変更','連系準備・受電','商用運転・市場参入','取下']
+  expected=['基本情報・設備','事前相談','接続検討','本申込・支払','名義・設備変更','連系準備・受電','商用運転・市場参入','取下']
   assert m.locator('#power-bulk-stage option').all_text_contents()==expected
   assert m.locator('#power-input-current-stage option').all_text_contents()==STAGES
-  for key,label in zip(['basic','connection','main','aggregator','grid','operation','withdrawal'],expected):
+  for key,label in zip(['basic','consultation','connection','main','aggregator','grid','operation','withdrawal'],expected):
    m.locator('#power-bulk-stage').select_option(key);assert m.locator('#power-bulk-heading').inner_text()==label;assert len(ids())==10
-  assert '取下関連の入力項目は現在未定義' in m.inner_text();assert m.locator('thead th').all_text_contents()==['案件番号','申請案件名','担当者','対応状態（共通）','対応期限（共通）','詳細']
+  assert '保存だけでは案件の取下・終了は実行しません' in m.inner_text();assert m.locator('thead th').all_text_contents()==['案件番号','申請案件名','担当者','取下日','取下理由','詳細'];m.locator('#power-bulk-stage').select_option('main')
   cell('G-00003','commonStatus').select_option('保留');m.locator('#power-bulk-stage').select_option('aggregator');assert cell('G-00003','commonStatus').input_value()=='保留';assert cell('G-00003','69').count()==1
   m.locator('[data-power-action=cancelAll]').click();assert cell('G-00003','commonStatus').input_value()=='未着手'
   before=cell('G-00003','69').input_value();cell('G-00003','69').fill('2026-11-05');m.locator('[data-power-action=saveAll]').click();m.locator('#power-input-current-stage').select_option('changes');assert 'G-00003' in ids()
   m.locator('[data-power-action=clearFilters]').click();assert len(ids())==10 and m.locator('#power-input-current-stage').input_value()==''
   m.locator('#power-bulk-stage').select_option('aggregator');assert cell('G-00003','69').input_value()=='2026-11-05';cell('G-00003','69').fill(before);m.locator('[data-power-action=saveAll]').click()
-  done('both lists have the specified labels/order; all six groups render; withdrawal reuses common fields without inventing a workflow; No.69 binding, save/cancel and clear work')
+  done('both lists have the specified labels/order; all eight groups render; withdrawal records dates/reasons without executing a workflow; No.69 binding, save/cancel and clear work')
   injection="""
 const stageKeys=[null,'24','42','69','80','89','100','102',null,null];
 for(let i=0;i<batteryCases.length;i++){const d=batteryCases[i].power;d.values={kind:'蓄電池',owner:'申請担当A','7':batteryCases[i].name};d.na={};if(stageKeys[i])d.values[stageKeys[i]]='2026-11-05';}

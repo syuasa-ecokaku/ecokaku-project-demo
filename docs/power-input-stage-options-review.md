@@ -1,5 +1,7 @@
 # 電力申請・蓄電池データ入力の工程選択
 
+現行の8区分・事前相談・取下の項目は [確定した工程・入力項目](power-battery-stage-fields.md) を参照。以下は過去の改修時の記録です。
+
 作業ブランチ: `feat/power-battery-input-stage-options`。開始コミット: `36dd6e0`。既存の未追跡 `.agents/` は保持。適用対象のAGENTS.mdなし。mainへのマージ・本番公開は行わない。
 
 ## 変更内容
