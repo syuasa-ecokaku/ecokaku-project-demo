@@ -8,7 +8,7 @@ from power_mock_smoke import server
 from department_notices_smoke import fixture
 from verified_cdn import verified_cdn
 ROOT=Path(__file__).resolve().parents[1];OUT=Path('/tmp/ecokaku-power-battery-stage-fields')
-LABELS=['基本情報・設備','事前相談','接続検討','本申込・工事費','名義・設備変更','連系準備・受電','商用運転・市場参入','取下']
+LABELS=['基本情報・設備','事前相談','接続検討申込','本申込・工事費','名義・設備変更','連系準備・受電','商用運転・市場参入','取下']
 NEW=['preconsultationAppliedAt','preconsultationAnsweredAt','withdrawalDate','withdrawalReason']
 HEADERS={
  'basic':['起案区分','事業種別','案件名称','担当者','案件住所','地目','地積','申請名義','AC容量','DC蓄電容量','蓄電型式','台数','PCS型式','台数','仲介・紹介者'],
