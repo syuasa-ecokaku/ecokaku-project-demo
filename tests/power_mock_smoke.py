@@ -156,8 +156,8 @@ def run():
         table.evaluate('(e)=>{e.style.removeProperty("height");e.scrollTop=0;e.scrollLeft=0}')
         f.locator('#power-bulk-stage').select_option('main')
         assert cell('P-00001','42').count()==1 and cell('P-00001','24').count()==0
-        assert f.locator('[data-power-field="45"]').count()==0 and '経理参照' in f.locator('.pw-cell-reference').first.get_attribute('title')
-        done('five-stage columns, read-only accounting, sticky IDs/names and non-overlapping sticky headers')
+        assert cell('P-00001','depositPaidAt').get_attribute('type')=='date' and f.locator('[data-power-field="45"]').count()==0
+        done('stage columns, a dedicated payment date, sticky IDs/names and non-overlapping sticky headers')
         bulk('connection')
         set_value(cell('P-00001','28'),'2027-02-01')
         set_value(cell('P-00002','28'),'2027-02-02')
@@ -226,9 +226,10 @@ def run():
         tab('summary')
         assert int(f.locator('[data-power-card=answer]').get_attribute('data-count'))==baseline_answer-1
         bulk('connection')
-        assert cell('G-00004','29').is_disabled()
-        expect(cell('G-00004','29')).to_have_value('対象外')
+        assert cell('G-00004','29').count()==0
+        expect(cell('G-00004','connectionAnsweredAt')).to_be_enabled()
         detail(3,'connection')
+        assert field('29').is_disabled()
         f.locator('[data-power-na="29"]').uncheck()
         save_case()
         tab('summary')

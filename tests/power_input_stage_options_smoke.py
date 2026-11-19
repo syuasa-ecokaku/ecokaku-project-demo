@@ -15,20 +15,20 @@ def run():
   def done(s):passed.append(s);print('PASS',s,flush=True)
   def ids():return m.locator('[data-power-bulk-row]').evaluate_all('(es)=>es.map(e=>e.dataset.powerBulkRow)')
   def cell(id,key):return m.locator('[data-power-bulk-row="'+id+'"] [data-power-field="'+key+'"]')
-  expected=['基本情報・設備','事前相談','接続検討','本申込・支払','名義・設備変更','連系準備・受電','商用運転・市場参入','取下']
+  expected=['基本情報・設備','事前相談','接続検討','本申込・工事費','名義・設備変更','連系準備・受電','商用運転・市場参入','取下']
   assert m.locator('#power-bulk-stage option').all_text_contents()==expected
   assert m.locator('#power-input-current-stage option').all_text_contents()==STAGES
   for key,label in zip(['basic','consultation','connection','main','aggregator','grid','operation','withdrawal'],expected):
    m.locator('#power-bulk-stage').select_option(key);assert m.locator('#power-bulk-heading').inner_text()==label;assert len(ids())==10
-  assert '保存だけでは案件の取下・終了は実行しません' in m.inner_text();assert m.locator('thead th').all_text_contents()==['案件番号','申請案件名','担当者','取下日','取下理由','詳細'];m.locator('#power-bulk-stage').select_option('main')
-  cell('G-00003','commonStatus').select_option('保留');m.locator('#power-bulk-stage').select_option('aggregator');assert cell('G-00003','commonStatus').input_value()=='保留';assert cell('G-00003','69').count()==1
+  assert '案件の取下・終了には別の操作が必要です' in m.inner_text();assert m.locator('thead th').all_text_contents()==['案件番号','申請案件名','担当者','取下日','取下げ理由','詳細'];m.locator('#power-bulk-stage').select_option('main')
+  cell('G-00003','commonStatus').select_option('保留');m.locator('#power-bulk-stage').select_option('aggregator');assert cell('G-00003','commonStatus').input_value()=='保留';assert cell('G-00003','66').count()==1
   m.locator('[data-power-action=cancelAll]').click();assert cell('G-00003','commonStatus').input_value()=='未着手'
-  before=cell('G-00003','69').input_value();cell('G-00003','69').fill('2026-11-05');m.locator('[data-power-action=saveAll]').click();m.locator('#power-input-current-stage').select_option('changes');assert 'G-00003' in ids()
+  before=cell('G-00003','66').input_value();cell('G-00003','66').fill('2026-11-05');m.locator('[data-power-action=saveAll]').click();m.locator('#power-input-current-stage').select_option('changes');assert 'G-00003' in ids()
   m.locator('[data-power-action=clearFilters]').click();assert len(ids())==10 and m.locator('#power-input-current-stage').input_value()==''
-  m.locator('#power-bulk-stage').select_option('aggregator');assert cell('G-00003','69').input_value()=='2026-11-05';cell('G-00003','69').fill(before);m.locator('[data-power-action=saveAll]').click()
-  done('both lists have the specified labels/order; all eight groups render; withdrawal records dates/reasons without executing a workflow; No.69 binding, save/cancel and clear work')
+  m.locator('#power-bulk-stage').select_option('aggregator');assert cell('G-00003','66').input_value()=='2026-11-05';cell('G-00003','66').fill(before);m.locator('[data-power-action=saveAll]').click()
+  done('both lists have the specified labels/order; all eight groups render; withdrawal records dates/reasons without executing a workflow; No.66 binding, save/cancel and clear work')
   injection="""
-const stageKeys=[null,'24','42','69','80','89','100','102',null,null];
+const stageKeys=[null,'24','42','66','80','89','100','102',null,null];
 for(let i=0;i<batteryCases.length;i++){const d=batteryCases[i].power;d.values={kind:'蓄電池',owner:'申請担当A','7':batteryCases[i].name};d.na={};if(stageKeys[i])d.values[stageKeys[i]]='2026-11-05';}
 """
   u=url+'?stage-fixture';p.route(u,lambda r:r.fulfill(status=200,content_type='text/html',body=fixture(raw,injection)));p.goto(u,wait_until='networkidle');f.locator('[data-page=power]').click();m.locator('[data-power-tab=bulk]').click();m.locator('#power-bulk-stage').select_option('aggregator')
