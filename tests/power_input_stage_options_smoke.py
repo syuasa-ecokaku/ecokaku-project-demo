@@ -15,7 +15,7 @@ def run():
   def done(s):passed.append(s);print('PASS',s,flush=True)
   def ids():return m.locator('[data-power-bulk-row]').evaluate_all('(es)=>es.map(e=>e.dataset.powerBulkRow)')
   def cell(id,key):return m.locator('[data-power-bulk-row="'+id+'"] [data-power-field="'+key+'"]')
-  expected=['基本情報・設備','事前相談','接続検討','本申込・工事費','名義・設備変更','連系準備・受電','商用運転・市場参入','取下']
+  expected=['基本情報・設備','事前相談','接続検討申込','本申込・工事費','名義・設備変更','連系準備・受電','商用運転・市場参入','取下']
   assert m.locator('#power-bulk-stage option').all_text_contents()==expected
   assert m.locator('#power-input-current-stage option').all_text_contents()==STAGES
   for key,label in zip(['basic','consultation','connection','main','aggregator','grid','operation','withdrawal'],expected):
