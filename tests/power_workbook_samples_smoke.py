@@ -51,6 +51,10 @@ def run():
         open_input()
         stage('basic')
         expect(workspace.locator('[data-power-bulk-row]')).to_have_count(10)
+        sample_numbers = workspace.locator('[data-power-workbook-number]')
+        expected_samples = [f'Excel {n}' for n in range(1, 11)]
+        expect(sample_numbers).to_have_text(expected_samples)
+        expect(row('P-00001').locator('.pw-pin-id')).to_contain_text('P-00001')
         expect(field('P-00001', '7')).to_have_value('サンプル蓄電所 01')
         expect(row('P-00001').locator('[data-power-case-field=address]')).to_have_value('架空県デモ市サンプル町 1番')
         expect(row('P-00002').locator('[data-pin-field=batteryCapacityKwh]')).to_have_value('')
@@ -65,6 +69,18 @@ def run():
         expect(field('P-00001', '31')).to_have_value('00090001')
         expect(field('P-00001', '33')).to_have_value('34950000')
         stage('main')
+        expect(workspace.get_by_role('columnheader', name='本回答予定日', exact=True)).to_be_visible()
+        expect(sample_numbers).to_have_text(expected_samples)
+        dates = ['2025-07-08', '対象外', '2026-09-01', '2026-09-29', '2026-06-01',
+                 '2026-05-27', '2026-03-27', '2025-10-14', '対象外', '']
+        assert workspace.locator('tbody [data-power-field="47"]').evaluate_all(
+            '(fields) => fields.map(field => field.value)') == dates
+        order = workspace.locator('[data-power-filter=sort]')
+        expect(order).to_have_value('number')
+        order.select_option('progress')
+        assert sample_numbers.all_text_contents() != expected_samples
+        order.select_option('number')
+        expect(sample_numbers).to_have_text(expected_samples)
         assert field('P-00001', 'mainOwner').input_value() != owner
         expect(field('G-00005', 'mainSupplyCondition')).to_have_value('入金後12ヵ月')
         expect(field('G-00008', 'burdenPaidAt')).to_have_value('')
@@ -98,6 +114,11 @@ def run():
         old_source[0] = fixture(latest, TEST_API)
         old.reload(wait_until='networkidle')
         assert old.frames[1].evaluate('() => __samplesTest.snapshot()') == before
+        old_frame = old.frame_locator('#codex-visualization')
+        old_frame.locator('[data-page=power]').click()
+        old_frame.locator('#power-workspace [data-power-tab=bulk]').click()
+        expect(old_frame.locator('[data-power-workbook-number]')).to_have_count(0)
+        expect(old_frame.locator('[data-power-workbook-note]')).to_contain_text('シークレットウィンドウ')
         assert errors == [], errors
         print('PASS: stage-specific editing survives reload and an existing saved catalogue hydrates unchanged')
         browser.close()
